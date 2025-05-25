@@ -606,7 +606,7 @@
     </menuitem>   
 
     <menuitem id="menu_hospital_reservation" 
-        name="Reservasi" 
+        name="Reservation" 
         parent="hospital_appointment_root_menu" 
         action="action_hospital_reservation"
         sequence="1"/>
