@@ -1,0 +1,184 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+<!-- Form View -->
+    <record id="view_hospital_employee_form" model="ir.ui.view">
+        <field name="name">hospital.employee.form</field>
+        <field name="model">hospital.employee</field>
+        <field name="arch" type="xml">
+            <form string="hospital_employee_form">
+                <sheet>
+                <div class="row align-items-center">
+                    <div class="col-md-6"><h4 class="firstbold"><field name="ref" readonly="1"/></h4></div>
+                    <div class="col-md-6"><field name="emp_img" widget="image" class="oe_avatar"/></div>
+                </div>
+                    <group string="Basic Information">
+                        <group>
+                            <field name="first_name"/>
+                            <field name="date_of_birth"/>
+                            <field name="age"/>
+                        </group>
+                        <group>
+                            <field name="gender"/>
+                            <field name="phone"/>
+                            <field name="email"/>
+                            <field name="active" invisible="1"/>
+                        </group>    
+                    </group>
+                    <notebook>
+                        <page string="Alamat">
+                            <group>
+                                <span class="o_form_label o_td_label">
+                                    <b>Alamat</b>
+                                </span>
+                                <div class="o_address_format">
+                                    <field name="street" placeholder="Jl. ..." class="o_address_street"/>
+                                    <field name="street2" placeholder="Jl. 2..." class="o_address_street"/>
+                                    <field name="city" placeholder="Kota" class="o_address_city"/>
+                                    <field name="state_id" class="o_address_state" placeholder="State" options="{'no_open': True, 'no_quick_create': True}"/>
+                                    <field name="zip" placeholder="ZIP" class="o_address_zip"/>
+                                    <field name="country_id" placeholder="Country" class="o_address_country" options="{&quot;no_open&quot;: True, &quot;no_create&quot;: True}"/>
+                                </div>
+                            </group>
+                        </page>
+                        <page string="Pendidikan dan Pengalaman">
+                            <group>
+                                <field name="education"/>
+                                <field name="experience"/>
+                                <field name="join_date"/>
+                            </group>
+                        </page>
+                        <page string="Riwayat Pasien" name="patient_history">
+                            <field name="appointment_ids" editable="false">
+                                <tree string="Riwayat Pasien" edit="0" create="0" delete="0">
+                                    <field name="patient_id" widget="many2one" options="{'no_create': True, 'no_open': False, 'action': 'action_hospital_appointment_kanban'}" optional="show"/>
+                                    <field name="appointment_date" optional="show"/>
+                                    <field name="treatment_ids" widget="many2many_tags"/>
+                                    <field name="notes"/>
+                                    <field name="state" decoration-info="state=='draft'" 
+                                    decoration-primary="state=='in_consultation'" 
+                                    decoration-success="state=='done'"  
+                                    decoration-danger="state=='cancel'" widget="badge" optional="show"/>
+                                </tree>
+                            </field>
+                        </page>
+                    </notebook>
+                </sheet>
+                <div class="oe_chatter">
+                    <field name="message_follower_ids" groups="base.group_user"/>
+                    <field name="activity_ids"/>
+                    <field name="message_ids"/>
+                </div>
+            </form>
+        </field>
+    </record>
+    <record id="view_pos_order_import_form" model="ir.ui.view">
+        <field name="name">pos.order.import.form</field>
+        <field name="model">pos.order.import.wizard</field>
+        <field name="arch" type="xml">
+            <form string="Import POS Orders">
+                <sheet>
+                    <group>
+                        <field name="file"/>
+                    </group>
+                    <footer>
+                        <button string="Import" type="object" name="import_orders" class="btn-primary"/>
+                        <button string="Cancel" class="btn-secondary" special="cancel"/>
+                    </footer>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+<!-- Tree View -->
+    <record id="view_hospital_employee_tree" model="ir.ui.view">
+        <field name="name">hospital.employee.tree</field>
+        <field name="model">hospital.employee</field>
+        <field name="arch" type="xml">
+            <tree string="hospital_employee_tree" sample="1">
+                <field name="ref"/>   
+                <field name="name"/>
+                <field name="date_of_birth"/>
+                <field name="age"/>
+                <field name="gender"/>
+                <field name="phone"/>      
+            </tree>
+        </field>
+    </record>
+    <!-- Kanban View -->
+    <record id="view_hospital_employee_kanban" model="ir.ui.view">
+        <field name="name">hospital.employee.kanban</field>
+        <field name="model">hospital.employee</field>
+        <field name="arch" type="xml">
+            <kanban string="Hospital Patients">
+                <templates>
+                    <t t-name="kanban-box">
+                        <div class="oe_kanban_global_click o_kanban_card" t-on-click="view_record(record.id)" style="transition: transform 0.2s; cursor: pointer; border-radius: 10px; box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);">
+                            <div class="o_kanban_details" style="padding: 10px; background-color: #ffffff;">
+                                <div class="o_kanban_image" style="float: left; margin-right: 5px;">
+                                    <field name="emp_img" widget="image" class="oe_avatar" style="border-radius: 50%; width: 100px; height: 100px; border: 2px solid #28a745;"/>
+                                </div>
+                                <div class="o_kanban_info">
+                                    <div style="font-size: 1.5em; font-weight: bold; color: #333;">
+                                        <field name="name"/> 
+                                    </div>
+                                    <div style="color: #555; margin-bottom: 5px;">
+                                        <strong>Umur:</strong><field name="age"/>
+                                    </div>
+                                    <div style="color: #555; margin-bottom: 5px;">
+                                        <strong>Gender:</strong><field name="gender"/>
+                                    </div>
+                                    <div style="color: #555; margin-bottom: 5px;">
+                                        <strong>Nomor Hp : </strong><field name="phone"/>
+                                    </div>                                
+                                </div>
+                            </div>
+                        </div>
+                    </t>
+                </templates>
+            </kanban>
+        </field>
+    </record>
+
+<!-- Search View -->
+    <record id="view_hospital_employee_search" model="ir.ui.view">
+        <field name="name">hospital.employee.search</field>
+        <field name="model">hospital.employee</field>
+        <field name="arch" type="xml">
+            <search string="hospital_employee_search">
+            
+            </search>
+        </field>
+    </record>
+
+<!-- Action -->
+    <record id="action_hospital_employee" model="ir.actions.act_window">
+        <field name="name">Terapis</field>
+        <field name="type">ir.actions.act_window</field>
+        <field name="res_model">hospital.employee</field>
+        <field name="view_mode">kanban,tree,form</field> 
+        <field name="context">{}</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                Buat Data Terapis
+            </p>
+        </field>
+    </record>
+    <record id="action_pos_order_import" model="ir.actions.act_window">
+        <field name="name">Import POS Orders</field>
+        <field name="res_model">pos.order.import.wizard</field>
+        <field name="view_mode">form</field>
+        <field name="target">new</field>
+    </record>
+<!-- Menu -->
+    <menuitem id="hospital_employee_menu"
+        name="Terapis"
+        sequence="0"
+        parent="hospital_employee_root_menu"
+        action="action_hospital_employee"/>
+    <menuitem id="hospital_order_menu"
+        name="Import order Pos"
+        sequence="3"
+        parent="point_of_sale.menu_point_of_sale"
+        action="action_pos_order_import"/>
+</odoo>

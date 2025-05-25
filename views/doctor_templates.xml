@@ -1,0 +1,110 @@
+<odoo>
+    <template id="doctor_template" name="Doctors">
+        <t t-call="website.layout">
+            <div class="container">
+                <h1>Jadwal Operasional Dokter</h1>
+                <style>
+                    .container {
+                        max-width: 800px;
+                        margin: 30px auto;
+                        padding: 20px;
+                        font-family: 'Poppins', sans-serif;
+                        background: #f9f9f9;
+                        border-radius: 10px;
+                        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+                    }
+
+                    .container h1 {
+                        text-align: center;
+                        font-size: 2rem;
+                        color: #444;
+                        margin-bottom: 25px;
+                        letter-spacing: 1px;
+                    }
+
+                    /* Styling untuk kartu dokter */
+                    .doctor-card {
+                        border: 1px solid #eee;
+                        border-radius: 10px;
+                        padding: 20px;
+                        margin-bottom: 20px;
+                        background: #ffffff;
+                        transition: all 0.3s ease;
+                        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+                    }
+
+                    .doctor-card:hover {
+                        box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+                        transform: translateY(-5px);
+                    }
+
+                    .doctor-card h2 {
+                        font-size: 1.5rem;
+                        color: #007bff;
+                        margin-bottom: 15px;
+                        border-bottom: 2px solid #007bff;
+                        padding-bottom: 5px;
+                        text-transform: capitalize;
+                    }
+
+                    .doctor-card p {
+                        margin: 5px 0;
+                        font-size: 1rem;
+                        color: #666;
+                        line-height: 1.5;
+                    }
+
+                    /* Styling untuk daftar poin */
+                    .doctor-card ul {
+                        list-style-type: none;
+                        padding: 0;
+                        margin-top: 15px;
+                    }
+
+                    .doctor-card ul li {
+                        padding: 10px;
+                        background: #f1f9ff;
+                        border-left: 4px solid #007bff;
+                        margin-bottom: 10px;
+                        font-size: 0.95rem;
+                        border-radius: 5px;
+                        transition: background 0.3s ease;
+                    }
+
+                    .doctor-card ul li:hover {
+                        background: #e0f3ff;
+                    }
+
+                    .doctor-card h3 {
+                        margin-top: 20px;
+                        font-size: 1.2rem;
+                        color: #444;
+                        text-transform: uppercase;
+                        font-weight: bold;
+                    }
+                </style>
+                <t t-foreach="doctors" t-as="doctor">
+                    <div class="doctor-card">
+                        <h2><t t-esc="doctor.name"/></h2>
+                        <p><strong>Age:</strong> <t t-esc="doctor.age"/></p>
+                        <p><strong>Specialization:</strong> <t t-esc="doctor.specialization"/></p>
+                        <p><strong>Phone:</strong> <t t-esc="doctor.phone"/></p>
+                        <t t-if="doctor.schedule_ids">
+                            <h3>Jadwal:</h3>
+                            <ul>
+                                <t t-foreach="doctor.schedule_ids" t-as="schedule">
+                                    <t t-if="schedule.is_active">
+                                        <li>
+                                            <strong><t t-esc="schedule.day_of_week"/>:</strong> 
+                                            <t t-esc="schedule.start_time"/> - <t t-esc="schedule.end_time"/>
+                                        </li>
+                                    </t>
+                                </t>
+                            </ul>
+                        </t>
+                    </div>
+                </t>
+            </div>
+        </t>
+    </template>
+</odoo>

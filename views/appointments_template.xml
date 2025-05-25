@@ -1,0 +1,143 @@
+<odoo>
+    <template id="appointments_template" name="Appointments">
+        <t t-call="website.layout">
+            <div class="container">
+                <h1>Appointments</h1>
+
+                <!-- Filter Section -->
+                <div class="filter-container">
+                    <label for="status_filter">Filter by Status:</label>
+                    <select id="status_filter" name="status_filter" class="form-control">
+                        <option value="">All</option>
+                        <option value="draft">Draft</option>
+                        <option value="confirmed">Confirmed</option>
+                        <option value="completed">Completed</option>
+                        <option value="cancelled">Cancelled</option>
+                    </select>
+                </div>
+
+                <!-- Appointment Table -->
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>Patient</th>
+                            <th>Doctor</th>
+                            <th>Appointment Date</th>
+                            <th>Status</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <t t-foreach="appointments" t-as="appointment">
+                            <!-- Applying the filter logic -->
+                            <t t-if="not status_filter or appointment.state == status_filter">
+                                <tr>
+                                    <td><t t-esc="appointment.patient_id.name"/></td>
+                                    <td><t t-esc="appointment.doctor_id.name"/></td>
+                                    <td><t t-esc="appointment.appointment_date"/></td>
+                                    <td>
+                                        <span class="status-label ">
+                                            <t t-esc="appointment.state"/>
+                                        </span>
+                                    </td>
+                                </tr>
+                            </t>
+                        </t>
+                    </tbody>
+                </table>
+            </div>
+        </t>
+        
+        <style>
+            .container {
+                background-color: #f9f9f9;
+                border-radius: 10px;
+                padding: 30px;
+                box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            }
+
+            h1 {
+                color: #333;
+                font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            }
+
+            .filter-container {
+                margin-bottom: 20px;
+            }
+
+            #status_filter {
+                padding: 5px 10px;
+                font-size: 14px;
+                width: 200px;
+                border-radius: 5px;
+                border: 1px solid #ccc;
+            }
+
+            .appointments-table {
+                margin-top: 20px;
+            }
+
+            .table {
+                width: 100%;
+                border-radius: 10px;
+                overflow: hidden;
+            }
+
+            .table th, .table td {
+                padding: 12px 15px;
+                text-align: left;
+                font-size: 14px;
+            }
+
+            .thead-light th {
+                background-color: #008CBA;
+                color: white;
+                font-weight: bold;
+            }
+
+            .table-striped tbody tr:nth-of-type(odd) {
+                background-color: #f1f1f1;
+            }
+
+            .table-hover tbody tr:hover {
+                background-color: #e2e2e2;
+                cursor: pointer;
+            }
+
+            .status-label {
+                font-weight: bold;
+                padding: 5px 10px;
+                border-radius: 5px;
+            }
+
+            .status-label.draft {
+                background-color: #f0ad4e;
+                color: white;
+            }
+
+            .status-label.confirmed {
+                background-color: #5bc0de;
+                color: white;
+            }
+
+            .status-label.completed {
+                background-color: #28a745;
+                color: white;
+            }
+
+            .status-label.cancelled {
+                background-color: #d9534f;
+                color: white;
+            }
+
+            @media (max-width: 768px) {
+                .table th, .table td {
+                    padding: 10px;
+                }
+
+                h1 {
+                    font-size: 24px;
+                }
+            }
+        </style>
+    </template>
+</odoo>

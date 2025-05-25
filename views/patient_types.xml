@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="patient_type_vip" model="hospital.patient.type">
+        <field name="name">VIP</field>
+    </record>
+    <record id="patient_type_regular" model="hospital.patient.type">
+        <field name="name">Regular</field>
+    </record>
+        
+</odoo>

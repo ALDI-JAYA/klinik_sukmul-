@@ -1,0 +1,629 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+<!-- Form View -->
+    <record id="view_hospital_patient_form" model="ir.ui.view">
+        <field name="name">hospital.patient.form</field>
+        <field name="model">hospital.patient</field>
+        <field name="arch" type="xml">
+            <form string="hospital_patient_form">
+                <header>
+                    <button name="send_ref_by_email" string="Send Info By Email" type="object" data-hotkey="g"/>
+                </header>
+                <sheet>
+                    <div class="oe_button_box" name="button_box">
+                        <button name="action_view_appointments" type="object" class="oe_stat_button" icon="fa-calendar">
+                            <div class="o_field_widget o_stat_info">
+                                <field name="appointment_count" widget="statinfo" options="{'clickable': True}"/><span> Riwayat</span>
+                                <span class="o_stat_text">Appointmnet</span>
+                            </div>
+                        </button>
+                        <button class="oe_stat_button" type="object" name="action_view_sale_order" icon="fa-usd">
+                            <field string="Sales" name="sale_order_count" widget="statinfo"/>
+                        </button>
+                        <button type="object" class="oe_stat_button" icon="fa-pencil-square-o" name="action_view_partner_invoices" context="{'default_partner_id': id}">
+                            <div class="o_form_field o_stat_info">
+                                <span class="o_stat_value">
+                                    <field name="currency_id" invisible="1" field_id="currency_id_0"/>
+                                    <field name="total_invoiced" widget="monetary" options="{'currency_field': 'currency_id'}" field_id="total_invoiced_0"/>
+                                </span>
+                                <span class="o_stat_text">Invoiced</span>
+                            </div>
+                        </button>
+                        <button name="action_view_partner" type="object" class="oe_stat_button" icon="fa-user">
+                            <div class="o_field_widget o_stat_info">
+                                <span class="o_stat_text">Lihat Detail</span>
+                            </div>
+                        </button>
+                    </div>
+                    <field name="patient_image" widget="image" class="oe_avatar"/>    
+                    <div class="row">
+                        <div class="col-md-4"> 
+                            <label for="first_name" class="oe_edit_only" placeholder="Nama"/>
+                            <field name="first_name"/>
+                        </div>
+                    </div>
+                    <group string="Informasi Umum">
+                        <group>
+                            <field name="name" readonly="1"/>
+                            <field name="gender" placeholder="Gender"/>  
+                            <field name="date_of_birth"/>
+                            <field name="age" placeholder="Umur"/> 
+                            <field name="darah"/> 
+                        </group>      
+                        <group string="Informasi Lainnya">
+                            <field name="appointment_count"/>
+                            <field name="active" invisible="1"/>
+                        </group>                     
+                    </group>
+                    <notebook>
+                        <page string="Personal">
+                            <group>
+                                <span class="o_form_label o_td_label">
+                                    <b>Alamat</b>
+                                </span>
+                                <div class="o_address_format">
+                                    <field name="street" placeholder="Jl. ..." class="o_address_street"/>
+                                    <field name="street2" placeholder="Jl. 2..." class="o_address_street"/>
+                                    <field name="city" placeholder="Kota" class="o_address_city"/>
+                                    <field name="state_id" class="o_address_state" placeholder="State" options="{'no_open': True, 'no_quick_create': True}"/>
+                                    <field name="zip" placeholder="ZIP" class="o_address_zip"/>
+                                    <field name="country_id" placeholder="Country" class="o_address_country" options="{&quot;no_open&quot;: True, &quot;no_create&quot;: True}"/>
+                                </div>
+                            </group>
+                            <group>
+                                <field name="phone" widget="phone" placeholder="No.Hp"/>
+                                <field name="email" widget="email" placeholder="ex. abc@gmail.com"/>
+                            </group>
+                        </page>
+                        <page string="Riwayat Pasien" name="patient_history">
+                            <field name="appointment_ids" editable="false">
+                                <tree sample="1">
+                                    <field name="appointment_date" optional="show"/>
+                                    <field name="doctor_id" optional="show"/>
+                                    <field name="perawat_id" optional="show"/>
+                                    <field name="treatment_ids" widget="many2many_tags"/>
+                                    <field name="pharmacy_ids" widget="many2many_tags"/>
+                                    <field name="notes" optional="hide"/>
+                                    <field name="state" decoration-info="state=='draft'" 
+                                    decoration-primary="state=='in_consultation'" 
+                                    decoration-success="state=='done'"  
+                                    decoration-danger="state=='cancel'" widget="badge" optional="show"/>
+                                </tree>
+                            </field>
+                        </page>
+                        <page string="Medicine">
+                            <group>
+                                <field name="allergies" placeholder="Alergi"/>
+                                <field name="skin_type" placeholder="Skin Tipe"/>
+                            </group>
+                        </page>
+                        <page string="Sales dan Purchasing">
+                            <group string="Sales">
+                                <field name="pricelist_id" />
+                                <field name="payment_terms_sale_id" />
+                            </group>
+                            <group string="Purchasing">
+                                <field name="payment_terms_purchase_id" />
+                            </group>
+                        </page>
+                    </notebook>
+                </sheet>
+                <div class="oe_chatter">
+                    <field name="message_follower_ids" groups="base.group_user"/>
+                    <field name="activity_ids"/>
+                    <field name="message_ids"/>
+                </div>
+            </form>
+        </field>
+    </record>
+
+    <!-- Form View for Hospital Reservation -->
+    <record id="view_hospital_reservation_form" model="ir.ui.view">
+        <field name="name">hospital.reservation.form</field>
+        <field name="model">hospital.reservation</field>
+        <field name="arch" type="xml">
+            <form string="Hospital Reservation">
+            <header>
+                <!-- <button name="state_btn_draft" class="oe_highlight" string=" Reset to Draft" type="object" states="register" data-hotkey="o"/> -->
+                <button name="state_btn_confirm" class="oe_highlight" string="Konfirmasi" type="object" states="draft" data-hotkey="d"/>
+                <!-- <button name="state_btn_register" class="oe_highlight" string="Registrasi" type="object" states="confirm" data-hotkey="d"/> -->
+                <button name="state_btn_cancel" class="oe_highlight" string="Batalkan" type="object" states="draft" data-hotkey="w" style="background-color: #a30b0b;"/>
+                <button name="whats_app_button" string="Whatsup" type="object" data-hotkey="g" icon="fa-whatsapp" style="background-color: #15bd20;" states="draft"/>
+                <field name="state" widget="statusbar" nolabel="1"/>
+            </header>
+                <sheet>
+                    <group>
+                        <group string="Data Pasien">
+                            <field name="ref" />
+                            <field name="patient_id" attrs="{'readonly': [('state', 'in', ['confirm', 'register'])]}"/>
+                            <field name="patient_type_ids" widget="many2many_tags" options="{'color_field':'color'}"/>
+                            <field name="phone" readonly="1" />
+                            <field name="age" readonly="1" />
+                        </group>
+                        <group string="Data Reservasi">
+                            <field name="receptionist_id" attrs="{'readonly': [('state', 'in', ['confirm', 'register'])]}"/>
+                            <field name="appointment_date" attrs="{'readonly': [('state', 'in', ['confirm', 'register'])]}"/>
+                            <field name="layanan_type_ids" widget="many2many_tags" options="{'color_field':'color'}" attrs="{'readonly': [('state', 'in', ['confirm', 'register'])]}"/>
+                            <field name="reservation_type_id" attrs="{'readonly': [('state', 'in', ['confirm', 'register'])]}"/>
+                            <field name="doctor_id" attrs="{'readonly': [('state', 'in', ['confirm', 'register'])]}"/>
+                            <field name="perawat_id" attrs="{'readonly': [('state', 'in', ['confirm', 'register'])]}"/>
+                        </group>
+                    </group>
+                    <notebook>
+                        <page string="Treatment Details" name="treatment_details">
+                            <field name="treatment_ids" colspan="4" nolabel="1" context="{'default_appointment_id': active_id}">
+                                <tree editable="bottom">
+                                    <field name="product_id" string="Treatment"/>
+                                    <field name="perawat_id" string="Perawat"/>
+                                    <field name="room_id" string="Ruangan"/>
+                                    <field name="available_bed_ids" invisible="1"/>
+                                    <field name="bed_ids" string="Kamar" widget="many2many_tags"/>
+                                    <field name="duration" string="Duration (Jam)" widget="float_time"/>
+                                    <field name="discount_nominal" string="Discount (Rp)"/>
+                                    <field name="discount_percentage" string="Discount (%)"/>
+                                    <field name="price" string="Price"/>
+                                    <field name="total_price" string="Total Price"/>
+                                </tree>
+                            </field>
+                            <group name="note_group" col="6" class="mt-2 mt-md-0">
+                                <group colspan="4">
+                                    <field colspan="2" name="note" nolabel="1" placeholder="Terms and conditions..." field_id="note_0"/>
+                                </group>
+                                <group class="oe_subtotal_footer" colspan="2" name="sale_total">
+                                    <field name="amount_total_treatment_without_discount" force_save="1"/>
+                                    <field name="amount_total_discount_treatment" force_save="1"/>
+                                    <field name="amount_total_treatment" force_save="1"/>
+                                </group>
+                                <div class="clearfix"/>
+                            </group>
+                        </page>
+                        <page string="Pharmacy Details" name="pharmacy_details">
+                            <field name="pharmacy_ids" colspan="4" nolabel="1" context="{'default_appointment_id': active_id}">
+                                <tree editable="bottom">
+                                    <field name="product_id" string="Product"/>
+                                    <field name="quantity" string="Quantity"/>
+                                    <field name="discount_nominal" string="Discount (Rp)"/>
+                                    <field name="discount_percentage" string="Discount (%)"/>
+                                    <field name="price" string="Price"/>
+                                    <field name="total_price" string="Total Price"/>
+                                </tree>
+                            </field>
+                            <group name="note_group" col="6" class="mt-2 mt-md-0">
+                                <group colspan="4"/>
+                                <group class="oe_subtotal_footer" colspan="2" name="sale_total">
+                                    <field name="amount_total_medical_without_discount" force_save="1" field_id="amount_total_medical_without_discount_0"/>
+                                    <field name="amount_total_discount_medical" force_save="1" field_id="amount_total_discount_medical_0"/>
+                                    <field name="amount_total_medical" force_save="1" field_id="amount_total_medical_0"/>
+                                </group>
+                                <div class="clearfix"/>
+                            </group>
+                        </page>
+                        <page string="Pengulangan Treatment" name="repeat">
+                                <group>
+                                    <field name="treatment_product_id" widget="many2many_tags"/>
+                                    <field name="repeat" />
+                                    <field name="repeat_type" />
+                                    <field name="repeat_count" />
+                                </group>
+                                <footer>
+                                    <button name="create_recurring_appointments" string="Ulangi Jadwal" type="object" class="oe_highlight" title="Buat pengulangan treatment bulanan atau mingguan" onmouseover="this.style.transform='scale(1.05)'; this.style.backgroundColor='#877f0e';" onmouseout="this.style.transform='scale(1)'; this.style.backgroundColor='#2a39de';"/>
+                                    <!-- <button string="Cancel" class="btn-secondary" special="cancel"/> -->
+                                </footer>
+                                <!-- <footer>
+                                    <button name="create_recurring_appointments" string="Ulangi Jadwal" type="object" class="oe_highlight" title="Buat pengulangan treatment bulanan atau mingguan" onmouseover="this.style.transform='scale(1.05)'; this.style.backgroundColor='#877f0e';" onmouseout="this.style.transform='scale(1)'; this.style.backgroundColor='#2a39de';" states="draft"/>
+                                    <button string="Cancel" class="btn-secondary" special="cancel"/>
+                                </footer> -->
+                            </page>
+                    </notebook>
+                </sheet>
+                <div class="oe_chatter">
+                    <field name="message_follower_ids" groups="base.group_user"/>
+                    <field name="activity_ids"/>
+                    <field name="message_ids"/>
+                </div>
+            </form>
+        </field>
+    </record>
+    <record id="view_hospital_patient_type_form" model="ir.ui.view">
+        <field name="name">hospital.patient.type.form</field>
+        <field name="model">hospital.patient.type</field>
+        <field name="arch" type="xml">
+            <form string="Patient Type">
+                <sheet>
+                    <group>
+                        <field name="name"/>
+                        <field name="color" widget="color_picker"/>
+                    </group>
+                </sheet>
+                <div class="oe_chatter">
+                    <field name="message_follower_ids" groups="base.group_user"/>
+                    <field name="activity_ids"/>
+                    <field name="message_ids"/>
+                </div>
+            </form>
+        </field>
+    </record>
+
+    <!-- Form View for Hospital Patient Layanan -->
+    <record id="view_hospital_reservation_type_form" model="ir.ui.view">
+        <field name="name">hospital.patient.layanan.form</field>
+        <field name="model">hospital.patient.layanan</field>
+        <field name="arch" type="xml">
+            <form string="Tipe Layanan">
+                <sheet>
+                    <group>
+                        <field name="name"/>
+                        <field name="color" widget="color_picker"/>
+                    </group>
+                </sheet>
+                <div class="oe_chatter">
+                    <field name="message_follower_ids" groups="base.group_user"/>
+                    <field name="activity_ids"/>
+                    <field name="message_ids"/>
+                </div>
+            </form>
+        </field>
+    </record>
+
+    <!-- Form View for Hospital Reservation Type -->
+    <record id="view_hospital_patient_layanan_form" model="ir.ui.view">
+        <field name="name">hospital.reservation.type.form</field>
+        <field name="model">hospital.reservation.type</field>
+        <field name="arch" type="xml">
+            <form string="Tipe Reservasi">
+                <sheet>
+                    <group>
+                        <field name="name"/>
+                        <field name="color" widget="color_picker"/>
+                    </group>
+                </sheet>
+                <div class="oe_chatter">
+                    <field name="message_follower_ids" groups="base.group_user"/>
+                    <field name="activity_ids"/>
+                    <field name="message_ids"/>
+                </div>
+            </form>
+        </field>
+    </record>
+    <!-- ==================================================================================================KANBAN======================================================================= -->
+    <!-- Kanban View for Birthday Themed Gift Box -->
+    <record id="view_hospital_patient_kanban" model="ir.ui.view">
+        <field name="name">hospital.patient.kanban</field>
+        <field name="model">hospital.patient</field>
+        <field name="arch" type="xml">
+            <kanban string="Hospital Patients" create="true">
+                <templates>
+                    <t t-name="kanban-box">
+                        <div class="oe_kanban_global_click o_kanban_card"
+                            t-on-click="view_record(record.id)"
+                            t-att-data-record-id="record.id"
+                            style="transition: transform 0.2s; cursor: pointer; border-radius: 15px; box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15); background-color: #4a90e2;
+                                    position: relative; padding: 20px; display: inline-block; min-width: 240px;">
+
+                            <!-- Ribbon Decoration -->
+                            <div style="position: absolute; top: 10px; left: 50%; transform: translateX(-50%); background-color: #fff;
+                                        height: 30px; width: 100%; border-radius: 8px 8px 0 0;">
+                                <div style="position: absolute; top: -5px; left: 50%; transform: translateX(-50%); background-color: #4a90e2;
+                                            width: 20px; height: 20px; border-radius: 50%;"></div>
+                            </div>
+
+                            <div class="o_kanban_details" style="padding: 30px 20px 20px 20px; background-color: #ffffff; border-radius: 15px;">
+                                <div class="o_kanban_image" style="text-align: center; margin-bottom: 15px;">
+                                    <field name="patient_image" widget="image" class="oe_avatar"
+                                        style="border-radius: 50%; width: 100px; height: 100px; border: 3px solid #4a90e2; display: inline-block;"/>
+                                </div>
+                                <div class="o_kanban_info" style="display: inline-block; vertical-align: top;">
+                                    <div style="font-size: 1.6em; font-weight: bold; color: #2c3e50; margin-bottom: 10px;">
+                                        <field name="first_name"/>
+                                    </div>
+                                    <div style="color: #555; margin-bottom: 5px;">
+                                        <strong>Kelamin:</strong> <field name="gender"/>
+                                    </div>
+                                    <div style="color: #555; margin-bottom: 5px;">
+                                        <strong>Lahir:</strong> <field name="date_of_birth"/>
+                                    </div>
+                                    <div style="color: #555; margin-bottom: 5px;">
+                                        <strong>Umur:</strong> <field name="age"/>
+                                    </div>
+
+                                    <!-- Birthday Celebration -->
+                                    <t t-if="record.is_birthday_today">
+                                        <div style="margin-top: 10px; color: #e74c3c; font-size: 1.2em; font-weight: bold;">
+                                            🎉 Happy Birthday, <field name="first_name"/>! 🎉
+                                        </div>
+                                    </t>
+                                </div>
+                            </div>
+                        </div>
+                    </t>
+                </templates>
+
+            </kanban>
+        </field>
+    </record>
+<!-- ================================================================================================================TREE VIEW======================================================================== -->
+<!-- Tree View -->
+    <record id="view_hospital_patient_tree" model="ir.ui.view">
+        <field name="name">hospital.patient.tree</field>
+        <field name="model">hospital.patient</field>
+        <field name="arch" type="xml">  
+            <tree string="hospital_patient_tree" sample="1">
+                <header>
+                    <button name="action_birthday_this_month" type="object" string="Ulang Tahun Bulan Ini" class="oe_highlight"/>
+                    <button name="action_birthday_next_month" type="object" string="Ulang Tahun Bulan Depan" class="oe_highlight"/>
+                </header>
+                <!-- <field name="ref"/> -->
+                <field name="name"/>
+                <field name="date_of_birth"/>
+                <field name="age"/>
+                <field name="gender"/>
+                <field name="phone"/>
+                <!-- <field name="allergies"/>      -->
+                <field name="status" widget="badge" 
+                    decoration-info="status == 'Lama'" 
+                    decoration-success="status != 'Lama'"/>  
+            </tree>
+        </field>
+    </record>
+
+     <!-- Tree View for Birthdays -->
+     <record id="view_hospital_patient_tree_birthday" model="ir.ui.view">
+        <field name="name">hospital.patient.tree.birthday</field>
+        <field name="model">hospital.patient</field>
+        <field name="arch" type="xml">
+            <tree string="Pasien Ulang Tahun">
+                <field name="first_name"/>
+                <field name="date_of_birth"/>
+                <field name="age"/>
+            </tree>
+        </field>
+    </record>
+
+     <!-- Tree View for Hospital Reservation -->
+    <record id="view_hospital_reservation_tree" model="ir.ui.view">
+        <field name="name">hospital.reservation.tree</field>
+        <field name="model">hospital.reservation</field>
+        <field name="arch" type="xml">
+            <tree string="Hospital Reservations" decoration-success="days_left == 0" decoration-warning="days_left == 1" decoration-danger="days_left &gt;= 2" sample="1">
+                <field name="ref"/>
+                <field name="patient_id"/>
+                <field name="patient_type_ids" widget="many2many_tags" options="{'color_field':'color'}"/>
+                <field name="days_left" optional="hide"/>
+                <field name="days_left_str"/>
+                <field name="appointment_date"/>
+                <field name="activity_ids" widget="list_activity" optional="show" modifiers="{}"/>
+                <field name="layanan_type_ids" widget="many2many_tags" options="{'color_field':'color'}"/>
+                <field name="state" decoration-info="state=='draft'" decoration-primary="state=='confirm'" decoration-warning="state=='register'" widget="badge"/>
+                <field name="is_used"/>
+            </tree>
+        </field>
+    </record>
+
+    <record id="view_hospital_patient_type_tree" model="ir.ui.view">
+        <field name="name">hospital.patient.type.tree</field>
+        <field name="model">hospital.patient.type</field>
+        <field name="arch" type="xml">
+            <tree string="Tipe Pasien">
+                <field name="name"/>
+                <field name="color"/>
+            </tree>
+        </field>
+    </record>
+
+    <!-- Tree View for Hospital Patient Layanan -->
+    <record id="view_hospital_patient_layanan_tree" model="ir.ui.view">
+        <field name="name">hospital.patient.layanan.tree</field>
+        <field name="model">hospital.patient.layanan</field>
+        <field name="arch" type="xml">
+            <tree string="Tipe Layanan">
+                <field name="name"/>
+                <field name="color"/>
+            </tree>
+        </field>
+    </record>
+
+    <record id="view_hospital_reservation_type_tree" model="ir.ui.view">
+        <field name="name">hospital.reservation.type.tree</field>
+        <field name="model">hospital.reservation.type</field>
+        <field name="arch" type="xml">
+            <tree string="Tipe Reservasi">
+                <field name="name"/>
+                <field name="color"/>
+            </tree>
+        </field>
+    </record>
+
+<!-- ============================================================================================CALENDAR============================================================================== -->
+    <record id="view_hospital_reservation_calendar" model="ir.ui.view">
+        <field name="name">hospital.reservation.calendar</field>
+        <field name="model">hospital.reservation</field>
+        <field name="arch" type="xml">
+            <calendar string="Janji Temu" date_start="appointment_date" color="state">
+                <field name="doctor_id" filters="1" avatar_field="patient_image"/>   
+                <field name="state" filters="['in', ['draft', 'confirm']]"/> 
+                <field name="reservation_type_id"/>  
+            </calendar>
+        </field>
+    </record>
+
+<!-- ============================================================================================SEARCH VIEW=========================================================================== -->
+    <!-- Search Filter for Birthdays -->
+    <!-- <record id="view_hospital_patient_search_birthday" model="ir.ui.view">
+        <field name="name">hospital.patient.search.birthday</field>
+        <field name="model">hospital.patient</field>
+        <field name="arch" type="xml">
+            <search string="Cari Ulang Tahun">
+                <field name="first_name"/>
+                <filter name="birthday_january" string="January Birthdays 🎉" 
+                    domain="[('date_of_birth', '!=', False), ('date_of_birth', 'ilike', '-01-%')]"/>
+                <filter name="birthday_february" string="February Birthdays 🎉" 
+                    domain="[('date_of_birth', '!=', False), ('date_of_birth', 'ilike', '-02-%')]"/>
+                <filter name="birthday_march" string="March Birthdays 🎉" 
+                    domain="[('date_of_birth', '!=', False), ('date_of_birth', 'ilike', '-03-%')]"/>
+                <filter name="birthday_april" string="April Birthdays 🎉" 
+                    domain="[('date_of_birth', '!=', False), ('date_of_birth', 'ilike', '-04-%')]"/>
+                <filter name="birthday_may" string="May Birthdays 🎉" 
+                    domain="[('date_of_birth', '!=', False), ('date_of_birth', 'ilike', '-05-%')]"/>
+                <filter name="birthday_june" string="June Birthdays 🎉" 
+                    domain="[('date_of_birth', '!=', False), ('date_of_birth', 'ilike', '-06-%')]"/>
+                <filter name="birthday_july" string="July Birthdays 🎉" 
+                    domain="[('date_of_birth', '!=', False), ('date_of_birth', 'ilike', '-07-%')]"/>
+                <filter name="birthday_august" string="August Birthdays 🎉" 
+                    domain="[('date_of_birth', '!=', False), ('date_of_birth', 'ilike', '-08-%')]"/>
+                <filter name="birthday_september" string="September Birthdays 🎉" 
+                    domain="[('date_of_birth', '!=', False), ('date_of_birth', 'ilike', '-09-%')]"/>
+                <filter name="birthday_october" string="October Birthdays 🎉" 
+                    domain="[('date_of_birth', '!=', False), ('date_of_birth', 'ilike', '-10-%')]"/>
+                <filter name="birthday_november" string="November Birthdays 🎉" 
+                    domain="[('date_of_birth', '!=', False), ('date_of_birth', 'ilike', '-11-%')]"/>
+                <filter name="birthday_december" string="December Birthdays 🎉" 
+                    domain="[('date_of_birth', '!=', False), ('date_of_birth', 'ilike', '-12-%')]"/>
+                <group expand="1" string="Group By">
+                    <filter name="group_by_birthday" string="Birth Month" context="{'group_by':'date_of_birth:month'}"/>
+                </group>
+                
+            </search>
+        </field>
+    </record> -->
+
+<!-- Search View -->
+    <record id="view_hospital_patient_search" model="ir.ui.view">
+        <field name="name">hospital.patient.search</field>
+        <field name="model">hospital.patient</field>
+        <field name="arch" type="xml">
+            <search string="hospital_patient_search">
+                <field name="first_name" filter_domain="['|','|', ('first_name','ilike',self), ('age','ilike',self), ('gender','ilike',self)]" string="Patient Search"/>
+                <!-- Filter Berdasarkan Bulan Ulang Tahun -->
+                <filter name="birthday_january" string="January Birthdays 🎉" 
+                    domain="[('date_of_birth', '!=', False), ('date_of_birth', 'ilike', '-01-%')]"/>
+                <filter name="birthday_february" string="February Birthdays 🎉" 
+                    domain="[('date_of_birth', '!=', False), ('date_of_birth', 'ilike', '-02-%')]"/>
+                <filter name="birthday_march" string="March Birthdays 🎉" 
+                    domain="[('date_of_birth', '!=', False), ('date_of_birth', 'ilike', '-03-%')]"/>
+                <filter name="birthday_april" string="April Birthdays 🎉" 
+                    domain="[('date_of_birth', '!=', False), ('date_of_birth', 'ilike', '-04-%')]"/>
+                <filter name="birthday_may" string="May Birthdays 🎉" 
+                    domain="[('date_of_birth', '!=', False), ('date_of_birth', 'ilike', '-05-%')]"/>
+                <filter name="birthday_june" string="June Birthdays 🎉" 
+                    domain="[('date_of_birth', '!=', False), ('date_of_birth', 'ilike', '-06-%')]"/>
+                <filter name="birthday_july" string="July Birthdays 🎉" 
+                    domain="[('date_of_birth', '!=', False), ('date_of_birth', 'ilike', '-07-%')]"/>
+                <filter name="birthday_august" string="August Birthdays 🎉" 
+                    domain="[('date_of_birth', '!=', False), ('date_of_birth', 'ilike', '-08-%')]"/>
+                <filter name="birthday_september" string="September Birthdays 🎉" 
+                    domain="[('date_of_birth', '!=', False), ('date_of_birth', 'ilike', '-09-%')]"/>
+                <filter name="birthday_october" string="October Birthdays 🎉" 
+                    domain="[('date_of_birth', '!=', False), ('date_of_birth', 'ilike', '-10-%')]"/>
+                <filter name="birthday_november" string="November Birthdays 🎉" 
+                    domain="[('date_of_birth', '!=', False), ('date_of_birth', 'ilike', '-11-%')]"/>
+                <filter name="birthday_december" string="December Birthdays 🎉" 
+                    domain="[('date_of_birth', '!=', False), ('date_of_birth', 'ilike', '-12-%')]"/>
+                <group expand="1" string="Group By">
+                    <filter name="group_by_birthday" string="Birth Month" context="{'group_by':'date_of_birth:month'}"/>
+                </group>
+                <separator/>
+                <filter name="filter_archived" string="Archived" domain="[('active', '=', False)]"/>
+                <group expand="0" string="Group Search">
+                    <filter name="group_by_gender" string="Gender" context="{'group_by':'gender'}"  />
+                </group>
+                <searchpanel>
+                    <field name="gender" icon="fa-users" enable_counters="1"/>
+                </searchpanel>
+            </search>
+        </field>
+    </record>
+
+    <record id="view_hospital_reservation_search" model="ir.ui.view">
+        <field name="name">hospital.reservation.search</field>
+        <field name="model">hospital.reservation</field>
+        <field name="arch" type="xml">
+            <search string="Hospital Reservations">
+                <field name="created_on" string="Created"/>
+                <filter name="today" string="Today" domain="[('created_on', '=', current_date)]"/>
+                <filter name="state_draft" string="Draft" domain="[('state','=','draft')]"/>
+                <filter name="state_confirm" string="Confirm" domain="[('state','=','confirm')]"/>
+            </search>
+        </field>
+    </record>
+
+<!-- ===================================================================================================ACTION============================================================================= -->
+<!-- Action -->
+    <record id="action_hospital_patient" model="ir.actions.act_window">
+        <field name="name"> Pasien</field>
+        <field name="type">ir.actions.act_window</field>
+        <field name="res_model">hospital.patient</field>
+        <field name="view_mode">tree,kanban,form</field> 
+        <field name="context">{}</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                Buat Data Pasien
+            </p>
+        </field>
+    </record>
+
+    <!-- Action for Birthday View -->
+    <!-- <record id="action_hospital_patient_birthday" model="ir.actions.act_window">
+        <field name="name">Ulang Tahun Pasien</field>
+        <field name="res_model">hospital.patient</field>
+        <field name="view_mode">kanban</field>
+        <field name="domain">[('date_of_birth', '!=', False)]</field>
+        <field name="context">{'search_default_birthday_month': 1}</field>
+        <field name="search_view_id" ref="view_hospital_patient_search_birthday"/>
+    </record> -->
+
+    <!-- Action to Access Reservations -->
+    <record id="action_hospital_reservation" model="ir.actions.act_window">
+        <field name="name">Reservasi</field>
+        <field name="res_model">hospital.reservation</field>
+        <field name="view_mode">tree,form</field>
+        <field name="view_id" ref="view_hospital_reservation_calendar"/> <!-- Jika sudah ada view kalender -->
+        <field name="context">{'search_default_state_draft': 1, 'search_default_state_confirm': 1}</field>
+    </record>
+
+    <!-- Action for Hospital Patient Type -->
+    <record id="action_hospital_patient_type" model="ir.actions.act_window">
+        <field name="name">Patient Types</field>
+        <field name="res_model">hospital.patient.type</field>
+        <field name="view_mode">tree,form</field>
+    </record>
+
+    <!-- Action for Hospital Patient Layanan -->
+    <record id="action_hospital_patient_layanan" model="ir.actions.act_window">
+        <field name="name">Tipe Layanan</field>
+        <field name="res_model">hospital.patient.layanan</field>
+        <field name="view_mode">tree,form</field>
+    </record>
+    <record id="action_hospital_reservation_type" model="ir.actions.act_window">
+        <field name="name">Tipe Reservasi</field>
+        <field name="res_model">hospital.reservation.type</field>
+        <field name="view_mode">tree,form</field>
+    </record>
+<!-- =========================================================================================================================MENU=============================================================== -->
+<!-- Menu -->
+    <menuitem id="hospital_data_menu" name="Master Data" sequence="1" parent="hospital_patient_root_menu">
+        <menuitem id="hospital_patient_menu" name="Pasien" sequence="10" action="action_hospital_patient"/>
+        <!-- <menuitem id="hospital_birthday_menu" name="Ulang Tahun" sequence="20" action="action_hospital_patient_birthday"/> -->
+    </menuitem>   
+
+    <menuitem id="menu_hospital_reservation" 
+        name="Reservasi" 
+        parent="hospital_appointment_root_menu" 
+        action="action_hospital_reservation"
+        sequence="1"/>
+
+    <menuitem id="hospital_konfigurasi_menu" name="Konfigurasi" sequence="2" parent="hospital_patient_root_menu">
+        <menuitem id="menu_hospital_tipe" name="Tipe Pasien" action="action_hospital_patient_type" sequence="10"/>
+        <menuitem id="menu_hospital_layanan" name="Tipe Layanan" action="action_hospital_patient_layanan" sequence="20"/>
+        <menuitem id="menu_hospital_reservation_type" name="Tipe Reservasi" action="action_hospital_reservation_type" sequence="30"/>
+    </menuitem>
+</odoo>
+
+
+
+<!-- 
+    <gantt date_start="date_start" date_stop="date_end" default_group_by="type_class_id,unit_id,floor_id,type_room_id,room_treatment_id" string="Poli/Unit" create="0" edit="0" default_scale="day" decoration-info="state == 'confirm'" decoration-success="state == 'registered'">
+                    <field name="patient_id"/>
+                    <field name="date_start"/>
+                    <field name="date_end"/>
+                    <field name="state"/>
+                </gantt> -->

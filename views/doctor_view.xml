@@ -1,0 +1,418 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Form View -->
+    <record id="view_hospital_doctor_form" model="ir.ui.view">
+        <field name="name">hospital.doctor.form</field>
+        <field name="model">hospital.doctor</field>
+        <field name="arch" type="xml">
+            <form string="hospital_doctor_form">
+                <sheet>
+                    <h4><field name="ref" readonly="1"/></h4>
+                    <field name="doctor_image" widget="image" class="oe_avatar"/>    
+                    <div class="row">
+                        <div class="col-md-4"> 
+                            <label for="first_name" string="First Name" class="oe_edit_only"/>
+                            <field name="first_name"/>
+                        </div>  
+                        <field name="user_id" readonly="1"/>                 
+                    </div>
+                    <group string="Basic Information">
+                        <group>
+                            <field name="gender"/>
+                            <field name="phone"/>
+                            <field name="email"/>
+                        </group>
+                        <group>
+                           <field name="date_of_birth"/>
+                            <field name="age"/>
+                        </group>                            
+                    </group>    
+                        <notebook>
+                            <page string="Personal">
+                                <group>
+                                    <span class="o_form_label o_td_label">
+                                        <b>Alamat</b>
+                                    </span>
+                                    <div class="o_address_format">
+                                        <field name="street" placeholder="Jl. ..." class="o_address_street"/>
+                                        <field name="street2" placeholder="Jl. 2..." class="o_address_street"/>
+                                        <field name="city" placeholder="Kota" class="o_address_city"/>
+                                        <field name="state_id" class="o_address_state" placeholder="State" options="{'no_open': True, 'no_quick_create': True}"/>
+                                        <field name="zip" placeholder="ZIP" class="o_address_zip"/>
+                                        <field name="country_id" placeholder="Country" class="o_address_country" options="{&quot;no_open&quot;: True, &quot;no_create&quot;: True}"/>
+                                    </div>
+                                </group>
+                            </page>
+                            <page string="Pendidikan dan Pengalaman">
+                                <group>
+                                    <field name="education"/>
+                                    <field name="specialization"/>
+                                </group>
+                                <group>
+                                    <field name="experience"/>
+                                    <field name="join_date"/>
+                                </group>
+                                <group>
+                                    <field name="sertifikat" />
+                                </group>
+                            </page>
+                            <page string="Jadwal Dokter" name="doctor_schedule">
+                                <field name="schedule_ids">
+                                    <tree editable="bottom">
+                                        <field name="day_of_week"/>
+                                        <field name="start_time" widget="float_time"/>
+                                        <field name="end_time" widget="float_time"/>
+                                        <field name="is_active"/>  <!-- Tambahkan field is_active -->
+                                    </tree>
+                                    <form>
+                                        <group>
+                                            <field name="day_of_week"/>
+                                            <field name="start_time" widget="float_time"/>
+                                            <field name="end_time" widget="float_time"/>
+                                            <field name="is_active"/>  <!-- Tambahkan field is_active -->
+                                        </group>
+                                    </form>
+                                </field>
+                            </page>
+                            <page string="Riwayat Pasien" name="patient_history">
+                                <field name="appointment_ids" editable="false">
+                                    <tree string="Riwayat Pasien" edit="0" create="0" delete="0">
+                                        <field name="patient_id" widget="many2one" options="{'no_create': True, 'no_open': False, 'action': 'action_hospital_appointment_kanban'}" optional="show"/>
+                                        <field name="appointment_date" optional="show"/>
+                                        <field name="notes"/>
+                                        <field name="pharmacy_ids" string="Detail Produk" widget="many2many_tags"/>
+                                        <field name="treatment_ids" string="Detail Treatment" widget="many2many_tags"/>
+                                        <field name="state" decoration-info="state=='draft'" 
+                                        decoration-primary="state=='in_consultation'" 
+                                        decoration-success="state=='done'"  
+                                        decoration-danger="state=='cancel'" widget="badge" optional="show"/>
+                                    </tree>
+                                </field>
+                            </page>
+                            <page string="Informasi Lainnya">
+                                <group>
+                                    <field name="social_media_links"/>
+                                    <field name="personal_website"/>
+                                    <field name="languages_spoken"/>
+                                </group>
+                            </page>
+                        </notebook>
+                    </sheet>
+                <div class="oe_chatter">
+                    <field name="message_follower_ids" groups="base.group_user"/>
+                    <field name="activity_ids"/>
+                    <field name="message_ids"/>
+                </div>
+            </form>
+        </field>
+    </record>
+
+    <!-- Form View for Patient History -->
+    <record id="view_hospital_patient_history_form" model="ir.ui.view">
+        <field name="name">hospital.patient.history.form</field>
+        <field name="model">hospital.appointment</field>
+        <field name="arch" type="xml">
+            <form string="Riwayat Pasien">
+                <sheet>
+                    <group>
+                        <field name="patient_id"/>
+                        <field name="doctor_id"/>
+                        <field name="booking_time"/>
+                        <field name="control_date"/>
+                        <field name="notes"/>
+                        <field name="state"/>
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+     <!-- Tree View for Patient History -->
+     <record id="view_hospital_patient_history_tree" model="ir.ui.view">
+        <field name="name">hospital.patient.history.tree</field>
+        <field name="model">hospital.appointment</field>
+        <field name="arch" type="xml">
+            <tree string="Riwayat Pasien">
+                <field name="patient_id"/>
+                <field name="booking_time"/>
+                <field name="control_date"/>
+                <field name="notes"/>
+                <field name="doctor_id"/>
+                <field name="state" widget="badge"
+                    decoration-info="state=='draft'"
+                    decoration-primary="state=='in_consultation'"
+                    decoration-success="state=='done'"
+                    decoration-danger="state=='cancel'"/>
+            </tree>
+        </field>
+    </record>
+
+    <!-- Tree View -->
+    <record id="view_hospital_doctor_tree" model="ir.ui.view">
+        <field name="name">hospital.doctor.tree</field>
+        <field name="model">hospital.doctor</field>
+        <field name="arch" type="xml">
+            <tree string="hospital_doctor_tree">
+                <field name="ref"/>
+                <field name="name"/>
+                <field name="age"/>
+                <field name="gender"/>
+                <field name="phone"/>       
+                <field name="specialization"/>       
+                <field name="schedule_ids"/>       
+            </tree>
+        </field>
+    </record>
+    <record id="view_doctor_schedule_tree" model="ir.ui.view">
+        <field name="name">doctor.schedule.tree</field>
+        <field name="model">doctor.schedule</field>
+        <field name="arch" type="xml">
+            <tree editable="bottom">
+                <field name="doctor_id"/>
+                <field name="day_of_week"/>
+                <field name="start_time" widget="float_time"/>
+                <field name="end_time" widget="float_time"/>
+                <field name="is_active"/>
+            </tree>
+        </field>
+    </record>
+    
+    <!-- Kanban View -->
+    <record id="view_hospital_doctor_kanban" model="ir.ui.view">
+        <field name="name">hospital.doctor.kanban</field>
+        <field name="model">hospital.doctor</field>
+        <field name="arch" type="xml">
+            <kanban string="Hospital Patients">
+                <templates>
+                    <t t-name="kanban-box">
+                        <div class="oe_kanban_global_click o_kanban_card" t-on-click="view_record(record.id)" style="transition: transform 0.2s; cursor: pointer; border-radius: 10px; box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);">
+                            <div class="o_kanban_details" style="padding: 10px; background-color: #ffffff;">
+                                <div class="o_kanban_image" style="float: left; margin-right: 5px;">
+                                    <field name="doctor_image" widget="image" class="oe_avatar" style="border-radius: 50%; width: 100px; height: 100px; border: 2px solid #28a745;"/>
+                                </div>
+                                <div class="o_kanban_info">
+                                    <div style="font-size: 1.5em; font-weight: bold; color: #333;">
+                                        <field name="name"/> 
+                                    </div>
+                                    <div style="color: #555; margin-bottom: 5px;">
+                                        <strong>Umur:</strong><field name="age"/>
+                                    </div>
+                                    <div style="color: #555; margin-bottom: 5px;">
+                                        <strong>Gender:</strong><field name="gender"/>
+                                    </div>
+                                    <div style="color: #555; margin-bottom: 5px;">
+                                        <strong>Spesialis:</strong><field name="specialization"/>
+                                    </div>
+                                    <div style="color: #555; margin-bottom: 5px;">
+                                        <strong>Nomor Hp : </strong><field name="phone"/>
+                                    </div>                                
+                                </div>
+                            </div>
+                        </div>
+                    </t>
+                </templates>
+            </kanban>
+        </field>
+    </record>
+    <record id="view_doctor_schedule_kanban" model="ir.ui.view">
+        <field name="name">doctor.schedule.kanban</field>
+        <field name="model">doctor.schedule</field>
+        <field name="arch" type="xml">
+            <kanban string="Jadwal Dokter" domain="[('is_active', '=', True)]">
+                <templates>
+                    <t t-name="kanban-box">
+                        <div class="oe_kanban_global_click o_kanban_card"
+                             t-on-click="view_record(record.id)"
+                             style="transition: transform 0.4s ease, box-shadow 0.3s ease, opacity 0.5s ease-out;
+                                    cursor: pointer; border-radius: 20px; overflow: hidden; border: 2px solid #00A1E4;
+                                    background-color: #f1f8e9; box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); animation: bounceIn 1s ease;">
+                            <style>
+                                /* Bounce-in animation for Kanban card */
+                                @keyframes bounceIn {
+                                    0% {
+                                        transform: scale(0.5);
+                                        opacity: 0;
+                                    }
+                                    50% {
+                                        transform: scale(1.1);
+                                        opacity: 1;
+                                    }
+                                    100% {
+                                        transform: scale(1);
+                                        opacity: 1;
+                                    }
+                                }
+    
+                                /* Pulse effect on hover */
+                                .oe_kanban_card:hover {
+                                    animation: pulse 1s infinite;
+                                    transform: scale(1.05);
+                                    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+                                }
+    
+                                /* Pulse animation */
+                                @keyframes pulse {
+                                    0% {
+                                        transform: scale(1.05);
+                                        box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+                                    }
+                                    50% {
+                                        transform: scale(1.1);
+                                        box-shadow: 0 12px 24px rgba(0, 0, 0, 0.25);
+                                    }
+                                    100% {
+                                        transform: scale(1.05);
+                                        box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+                                    }
+                                }
+    
+                                /* Skew effect on hover */
+                                .oe_kanban_card:hover {
+                                    transform: scale(1.05) skew(-5deg);
+                                    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+                                }
+    
+                                /* Slide-up and fade-in effect when card appears */
+                                @keyframes slideUp {
+                                    0% {
+                                        transform: translateY(50px);
+                                        opacity: 0;
+                                    }
+                                    100% {
+                                        transform: translateY(0);
+                                        opacity: 1;
+                                    }
+                                }
+    
+                                .oe_kanban_card {
+                                    animation: slideUp 0.5s ease-out, bounceIn 1s ease-out;
+                                }
+                            </style>
+    
+                            <!-- Header with Doctor Name -->
+                            <div style="background-color: #00A1E4; color: #fff; padding: 12px;">
+                                <div style="font-size: 1.3em; font-weight: bold; text-align: center;">
+                                    <field name="doctor_id"/> <!-- Nama Dokter -->
+                                </div>
+                            </div>
+                            
+                            <!-- Schedule Details -->
+                            <div class="o_kanban_details" style="padding: 10px; background-color: #ffffff;">
+                                <div class="o_kanban_info">
+                                    <div style="color: #555; font-weight: bold; margin-bottom: 5px; font-size: 1.5em; text-align: center;">
+                                        <!-- <span style="color: #00A1E4;">Hari: </span> -->
+                                        <field name="day_of_week"/>
+                                        <hr/>
+                                        <!-- <span style="color: #00A1E4;">Jam: </span> -->
+                                        <field name="start_time"/> - <field name="end_time"/>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <!-- Footer Information -->
+                            <div style="background-color: #055475; padding: 5px; color: #ffffff; text-align: center; font-size: 0.9em;">
+                                <strong>Jadwal Dokter</strong>
+                            </div>
+                        </div>
+                    </t>
+                </templates>
+            </kanban>
+        </field>
+    </record>
+    
+    <!-- Search View -->
+    <record id="view_hospital_doctor_search" model="ir.ui.view">
+        <field name="name">hospital.doctor.search</field>
+        <field name="model">hospital.doctor</field>
+        <field name="arch" type="xml">
+            <search string="hospital_doctor_search">
+                <field name="name" filter_domain="['|','|', ('name','ilike',self), ('age','ilike',self), ('gender','ilike',self)]" string="Doctor Search"/>
+                <filter name="gender_male" string="Male" domain="[('gender', '=', 'male')]"/>
+                <filter name="gender_female" string="Female" domain="[('gender', '=', 'female')]"/>
+                <group expand="0" string="Group Search">
+                    <filter name="group_by_gender" string="Gender" context="{'group_by':'gender'}"/>
+                </group>
+                <searchpanel>
+                    <field name="gender" icon="fa-users" enable_counters="1"/>
+                </searchpanel>
+            </search>
+        </field>
+    </record>
+    <!-- Search View untuk Jadwal Dokter -->
+    <record id="view_doctor_schedule_search" model="ir.ui.view">
+        <field name="name">doctor.schedule.search</field>
+        <field name="model">doctor.schedule</field>
+        <field name="arch" type="xml">
+            <search>
+                <field name="doctor_id" string="Doctor" filter_domain="[(doctor_id, '!=', False)]" />
+                <field name="day_of_week" string="Day of Week"/>
+                <field name="is_active" string="Active" select="multi"/>
+                <filter name="active_filter" string="Active" domain="[('is_active', '=', True)]"/>
+            </search>
+        </field>
+    </record>
+
+    <!-- Calendar View jadwal Doctor -->
+    <record id="view_doctor_schedule_calendar" model="ir.ui.view">
+        <field name="name">doctor.schedule.calendar</field>
+        <field name="model">doctor.schedule</field>
+        <field name="arch" type="xml">
+            <calendar string="Doctor Schedule" date_start="start_datetime" mode="month" color="doctor_id">
+                <field name="doctor_id" filters="1"/>
+                <field name="day_of_week" filters="1"/>
+                <field name="start_time" filters="1"/>
+                <field name="end_time"/>
+            </calendar>
+        </field>
+    </record>
+
+    <!-- Action -->
+    <record id="action_hospital_doctor" model="ir.actions.act_window">
+        <field name="name">Klinik Dokter</field>
+        <field name="type">ir.actions.act_window</field>
+        <field name="res_model">hospital.doctor</field>
+        <field name="view_mode">kanban,tree,form</field> 
+        <field name="context">{}</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                Buat Daftar Doktor
+            </p>
+        </field>
+    </record>
+    <record id="action_doctor_schedule" model="ir.actions.act_window">
+        <field name="name">Doctor Schedule</field>
+        <field name="res_model">doctor.schedule</field>
+        <field name="view_mode">kanban,tree,calendar,form</field>
+        <field name="context">{'group_by': 'day_of_week'}</field>
+        <field name="domain">[('is_active', '=', True)]</field>
+    </record>
+
+    <record id="action_hospital_appointment" model="ir.actions.act_window">
+        <field name="name">Riwayat Janji Temu</field>
+        <field name="type">ir.actions.act_window</field>
+        <field name="res_model">hospital.appointment</field>
+        <field name="view_mode">tree,form</field>
+        <field name="context">{'search_default_patient_id': active_id, 'search_default_state': 'draft'}</field>
+    </record>
+
+    <!-- Action for Patient History -->
+    <record id="action_hospital_patient_history" model="ir.actions.act_window">
+        <field name="name">Riwayat Pasien</field>
+        <field name="type">ir.actions.act_window</field>
+        <field name="res_model">hospital.appointment</field>
+        <field name="view_mode">pivot,tree</field>
+        <field name="domain">[('state', 'in', ['done'])]</field>
+    </record>
+    
+    <!-- Menu -->
+    <menuitem id="hospital_master_menu" name="Master Dokter" sequence="0" parent="hospital_doctor_root_menu">
+        <menuitem id="hospital_doctor_menu" name="Dokter" sequence="0" action="action_hospital_doctor"/>
+        <menuitem id="hospital_doctor_calendar_menu" name="Jadwal Dokter" sequence="1" action="action_doctor_schedule"/>
+    </menuitem>
+    <!-- Menu for Patient History -->
+    <menuitem id="menu_hospital_patient_history"
+        name="Laporan"
+        parent="hospital_doctor_root_menu"
+        action="action_hospital_patient_history"
+        sequence="30"/>
+    </odoo>

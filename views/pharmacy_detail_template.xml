@@ -1,0 +1,139 @@
+<odoo>
+    <template id="pharmacy_detail_template" name="Pharmacy Detail">
+        <t t-call="website.layout">
+            <div class="container">
+                <h1><t t-esc="medicine.name"/></h1>
+                <div class="pharmacy-details">
+                    <div class="pharmacy-left">
+                        <!-- <p><strong>Batch No:</strong> <t t-esc="medicine.batch_no"/></p> -->
+                        <p><strong>Manufacture Date:</strong> <t t-esc="medicine.mfg_date"/></p>
+                        <p><strong>Expiration Date:</strong> <t t-esc="medicine.exp_date"/></p>
+                        <p><strong>Price:</strong> <t t-esc="medicine.unit_price"/> Rupiah</p>
+                        <!-- <p><strong>Stock Quantity:</strong> <t t-esc="medicine.stock"/></p> -->
+                        <div class="product-actions">
+                            <button class="btn btn-primary add-to-cart" t-if="medicine.stock > 0">Add to Cart</button>
+                            <button class="btn btn-secondary" t-if="medicine.stock == 0" disabled="true">Out of Stock</button>
+                        </div>
+                    </div>
+                    <div class="pharmacy-right">
+                        <img t-if="medicine.produk_image" t-att-src="'data:image/png;base64,' + medicine.produk_image" alt="Product Image" class="product-image"/>
+                    </div>
+                </div>
+            </div>
+        </t>
+
+        <style>
+            /* Container Style */
+            .container {
+                padding: 30px;
+                max-width: 1200px;
+                margin: 0 auto;
+                background-color: #f7f7f7;
+            }
+
+            h1 {
+                font-size: 2.5rem;
+                color: #333;
+                text-align: center;
+                margin-bottom: 30px;
+                font-weight: bold;
+            }
+
+            /* Product Details Layout */
+            .pharmacy-details {
+                display: flex;
+                justify-content: space-between;
+                margin-top: 30px;
+                background-color: #fff;
+                border-radius: 10px;
+                padding: 30px;
+                box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+                transition: transform 0.3s ease;
+            }
+
+            .pharmacy-details:hover {
+                transform: translateY(-5px);
+            }
+
+            .pharmacy-left {
+                width: 60%;
+                padding-right: 30px;
+            }
+
+            .pharmacy-right {
+                width: 35%;
+                text-align: center;
+            }
+
+            p {
+                font-size: 1.2rem;
+                line-height: 1.8;
+                margin-bottom: 15px;
+                color: #666;
+            }
+
+            strong {
+                font-weight: bold;
+                color: #333;
+            }
+
+            .price {
+                font-size: 1.5rem;
+                color: #28a745;
+                font-weight: bold;
+            }
+
+            .product-image {
+                width: 100%;
+                max-width: 350px;
+                height: auto;
+                border: 1px solid #ddd;
+                border-radius: 10px;
+                box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+                transition: transform 0.3s ease;
+            }
+
+            .product-image:hover {
+                transform: scale(1.05);
+            }
+
+            /* Product Actions (Buttons) */
+            .product-actions {
+                margin-top: 20px;
+            }
+
+            .btn {
+                padding: 12px 25px;
+                font-size: 1.1rem;
+                border-radius: 8px;
+                cursor: pointer;
+                border: none;
+                outline: none;
+                transition: background-color 0.3s ease;
+            }
+
+            .btn-primary {
+                background-color: #007bff;
+                color: white;
+            }
+
+            .btn-primary:hover {
+                background-color: #0056b3;
+            }
+
+            .btn-secondary {
+                background-color: #f44336;
+                color: white;
+            }
+
+            .btn-secondary:hover {
+                background-color: #d32f2f;
+            }
+
+            .btn:disabled {
+                background-color: #ccc;
+                cursor: not-allowed;
+            }
+        </style>
+    </template>
+</odoo>

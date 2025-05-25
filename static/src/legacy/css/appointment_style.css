@@ -1,0 +1,43 @@
+/* Title styling */
+.appointments-title {
+    text-align: center;
+    color: #84dd5a;
+    margin-bottom: 20px;
+    font-family: 'Arial', sans-serif;
+}
+
+/* Table styling */
+.appointments-table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.appointments-table th,
+.appointments-table td {
+    padding: 10px;
+    text-align: left;
+    border-bottom: 1px solid #ddd;
+}
+
+.appointments-table th {
+    background-color: #34495E;
+    color: white;
+    font-weight: bold;
+}
+
+.appointments-table tr:hover {
+    background-color: #f1f1f1;
+}
+
+.appointments-table td {
+    font-size: 14px;
+}
+
+.appointments-table td a {
+    color: #2980B9;
+    text-decoration: none;
+}
+
+.appointments-table td a:hover {
+    text-decoration: underline;
+}

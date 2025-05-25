@@ -1,0 +1,551 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+        <!-- Form View -->
+        <record id="view_hospital_appointment_form" model="ir.ui.view">
+            <field name="name">hospital.appointment.form</field>
+            <field name="model">hospital.appointment</field>
+            <field name="arch" type="xml">
+                <form string="hospital_appointment_form">   
+                    <header>
+                        <button name="state_btn_in_consultation" class="oe_highlight" string=" Konsultasi" type="object" states="draft" data-hotkey="q"/>
+                        <button name="state_btn_pra_consultation" class="oe_highlight" string=" Treatment" type="object" states="in_consultation" data-hotkey="w" groups="!klinik_sukmul.group_receptionist"/>
+                        <button name="state_btn_done" string=" Non Treatment" type="object" states="in_consultation" data-hotkey="e" groups="!klinik_sukmul.group_receptionist"/>
+                        <!-- <button name="state_btn_done" class="oe_highlight" string="Konfirmasi" type="object" states="pra_consultation" data-hotkey="r"/> -->
+                        <button name="print_report" string="Cetak Nota" type="object" class="oe_highlight" states="payment"/>
+                        <field name="state" widget="statusbar" nolabel="1"/>   
+                    </header>
+                    <sheet>
+                        <!-- <field name="priority" widget="priority"/> -->
+                        <div style="font-size: 1.35em; font-weight: bold; margin: 10px 0;">
+                            <field name="medical_record_number" readonly="1" string="Nomor Catatan Medis"/>
+                        </div>
+                        <group>
+                             <group>
+                                <field name="appointment_type" widget="radio" options="{'horizontal': true}" attrs="{'readonly': [('state', 'in', ['in_consultation', 'pra_consultation', 'done'])]}"/>
+                            </group>
+                            <group attrs="{'invisible': [('appointment_type', '=', 'direct')]}">
+                                <field name="reservation_id" widget="many2one" domain="[('state', '=', 'confirm')]" attrs="{'readonly': [('state', 'in', ['in_consultation', 'pra_consultation', 'done'])]}"/>
+                                <field name="patient_type_ids" readonly="1" widget="many2many_tags" options="{'color_field':'color'}" attrs="{'readonly': [('state', 'in', ['in_consultation', 'pra_consultation', 'done'])]}"/>
+                                <field name="layanan_type_ids" readonly="1" widget="many2many_tags" options="{'color_field':'color'}" attrs="{'readonly': [('state', 'in', ['in_consultation', 'pra_consultation', 'done'])]}"/>
+                            </group>
+                            <group attrs="{'invisible': [('appointment_type', '=', 'reservasi')]}">
+                                <field name="layanan_type_ids" widget="many2many_tags" options="{'color_field':'color'}" attrs="{'readonly': [('state', 'in', ['in_consultation', 'pra_consultation', 'done'])]}"/>
+                                <field name="patient_type_ids" widget="many2many_tags" options="{'color_field':'color'}" attrs="{'readonly': [('state', 'in', ['in_consultation', 'pra_consultation', 'done'])]}"/>
+                            </group>
+                        </group>
+                        <group>
+                            <group string="Data Pasien">
+                                <field name="patient_id" attrs="{'readonly': [('state', 'in', ['in_consultation', 'pra_consultation', 'done']), ('appointment_type', '=', 'reservasi')]}"/>
+                                <field name="age"/>
+                                <field name="gender"/>
+                                <field name="phone"/>
+                            </group>
+                            <group string="Data Registrasi">
+                                <field name="receptionist_id" attrs="{'readonly': [('state', 'in', ['in_consultation', 'pra_consultation','done'])]}"/>
+                                <field name="pricelist_id" attrs="{'readonly': [('state', 'in', ['in_consultation', 'pra_consultation', 'done'])]}"/>
+                                <field name="payment_term_id" attrs="{'readonly': [('state', 'in', ['in_consultation', 'pra_consultation', 'done'])]}"/>
+                                <field name="arrival_status" widget="badge" options="{'color': {'arrived': 'badge-success', 'not_arrived': 'badge-warning', 'cancelled': 'orange'}}"/>
+                                <field name="appointment_date" attrs="{'readonly': [('state', 'in', ['in_consultation', 'pra_consultation', 'done']), ('appointment_type', '=', 'reservasi')]}"/>
+                                <field name="doctor_id" attrs="{'readonly': [('state', 'in', ['in_consultation', 'pra_consultation', 'done']), ('appointment_type', '=', 'reservasi')]}"/>
+                            </group>
+                        </group>
+                        <notebook>
+                            <page string="Treatment Details" name="treatment_details">
+                                <field name="treatment_ids" colspan="4" nolabel="1" context="{'default_appointment_id': active_id}">
+                                    <tree editable="bottom">
+                                        <field name="product_id" string="Treatment"/>
+                                        <field name="patient_id" string="Pasien" optional="hide"/>
+                                        <field name="perawat_id" string="Perawat"/>
+                                        <field name="room_id" string="Ruangan"/>
+                                        <field name="available_bed_ids" invisible="1"/>
+                                        <field name="bed_ids" string="Kamar" widget="many2many_tags"/>
+                                        <field name="arrival_time" string="Waktu Kedatangan"/>
+                                        <field name="end_time" string="Waktu Selesai"/>
+                                        <field name="duration" string="Duration (Menit)" widget="float_time"/>
+                                        <field name="discount_nominal" string="Discount (Rp)" optional="hide"/>
+                                        <field name="discount_percentage" string="Discount (%)" optional="hide"/>
+                                        <field name="price" string="Price" optional="hide"/>
+                                        <field name="total_price" string="Total Price" optional="hide"/>
+                                    </tree>
+                                </field>
+                                <group name="note_group" col="6" class="mt-2 mt-md-0">
+                                    <group colspan="4">
+                                        <field colspan="2" name="note" nolabel="1" placeholder="Terms and conditions..." field_id="note_0"/>
+                                    </group>
+                                    <group class="oe_subtotal_footer" colspan="2" name="sale_total">
+                                        <field name="amount_total_treatment_without_discount" force_save="1"/>
+                                        <field name="amount_total_discount_treatment" force_save="1"/>
+                                        <field name="amount_total_treatment" force_save="1"/>
+                                    </group>
+                                    <div class="clearfix"/>
+                                </group>
+                            </page>
+                            <page string="Pharmacy Details" name="pharmacy_details">
+                                <field name="pharmacy_ids" colspan="4" nolabel="1" context="{'default_appointment_id': active_id}">
+                                    <tree editable="bottom">
+                                        <field name="product_id" string="Product"/>
+                                        <field name="description" string="Deskripsi"/>
+                                        <field name="quantity" string="Quantity"/>
+                                        <field name="discount_nominal" string="Discount (Rp)"/>
+                                        <field name="discount_percentage" string="Discount (%)"/>
+                                        <field name="price" string="Price"/>
+                                        <field name="total_price" string="Total Price"/>
+                                    </tree>
+                                </field>
+                                <group name="note_group" col="6" class="mt-2 mt-md-0">
+                                    <group colspan="4"/>
+                                    <group class="oe_subtotal_footer" colspan="2" name="sale_total">
+                                        <field name="amount_total_medical_without_discount" force_save="1" field_id="amount_total_medical_without_discount_0"/>
+                                        <field name="amount_total_discount_medical" force_save="1" field_id="amount_total_discount_medical_0"/>
+                                        <field name="amount_total_medical" force_save="1" field_id="amount_total_medical_0"/>
+                                    </group>
+                                    <div class="clearfix"/>
+                                </group>
+                            </page>
+                            <!-- <page string="Pengulangan Appointment" name="recurrence">
+                                <group>
+                                    <field name="recurrence_type" />
+                                    <field name="recurrence_interval" />
+                                </group>
+                                <footer>
+                                    <button name="create_recurring_appointments" string="Ulangi Jadwal" type="object" class="oe_highlight" title="Buat pengulangan treatment bulanan atau mingguan" onmouseover="this.style.transform='scale(1.05)'; this.style.backgroundColor='#877f0e';" onmouseout="this.style.transform='scale(1)'; this.style.backgroundColor='#2a39de';" states="draft"/>
+                                    <button string="Cancel" class="btn-secondary" special="cancel"/>
+                                </footer>
+                            </page> -->
+                            <page string="Body Chart">
+                                <group string="Body Chart">
+                                    <div style="text-align: center; padding: 20px; border: 1px solid #ddd; border-radius: 8px; background-color: #f9f9f9;">
+                                        <img class="img" src="/klinik_sukmul/static/description/body.jpeg" style="width: 80%; max-width: 700px; height: auto; box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.2);" />
+                                    </div>
+                                    
+                                    <!-- Centered button with added styling -->
+                                    <div style="text-align: center; margin-top: 20px;">
+                                        <button name="action_draw" type="object" id="drawButton" 
+                                                style="background-color: #5A67D8; color: white; padding: 10px 20px; border: none; border-radius: 5px; cursor: pointer; margin-right: 10px; 
+                                                transition: all 0.3s ease-in-out; 
+                                                transform: scale(1); 
+                                                outline: none;
+                                                box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);"
+                                                onmouseover="this.style.backgroundColor='#4C51BF'; this.style.transform='scale(1.1)';" 
+                                                onmouseout="this.style.backgroundColor='#5A67D8'; this.style.transform='scale(1)';"
+                                                onmousedown="this.style.transform='scale(0.98)';" 
+                                                onmouseup="this.style.transform='scale(1.1)';">
+                                                Draw
+                                        </button>
+                                        <button name="action_draw" type="object" id="saveButton" 
+                                                style="background-color: #48BB78; color: white; padding: 10px 20px; border: none; border-radius: 5px; cursor: pointer; margin-right: 10px; 
+                                                transition: all 0.3s ease-in-out; 
+                                                transform: scale(1); 
+                                                outline: none;
+                                                box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);"
+                                                onmouseover="this.style.backgroundColor='#38A169'; this.style.transform='scale(1.1)';" 
+                                                onmouseout="this.style.backgroundColor='#48BB78'; this.style.transform='scale(1)';"
+                                                onmousedown="this.style.transform='scale(0.98)';" 
+                                                onmouseup="this.style.transform='scale(1.1)';">
+                                                Save
+                                        </button>
+                                        <button name="action_draw" type="object" id="deleteButton" 
+                                                style="background-color: #E53E3E; color: white; padding: 10px 20px; border: none; border-radius: 5px; cursor: pointer; 
+                                                transition: all 0.3s ease-in-out; 
+                                                transform: scale(1); 
+                                                outline: none;
+                                                box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);"
+                                                onmouseover="this.style.backgroundColor='#C53030'; this.style.transform='scale(1.1)';" 
+                                                onmouseout="this.style.backgroundColor='#E53E3E'; this.style.transform='scale(1)';"
+                                                onmousedown="this.style.transform='scale(0.98)';" 
+                                                onmouseup="this.style.transform='scale(1.1)';">
+                                                Delete
+                                        </button>
+                                    </div>
+                                    <div style="text-align: center; margin-top: 20px;">
+                                        <field name="body_chart_notes" widget="digital_signature" placeholder="Masukkan Pengamatan Body..." style="width: 100%; max-width: 700px; padding: 10px; border: 1px solid #ddd; border-radius: 5px;" />
+                                    </div>
+                                </group>
+                            </page>
+                            
+                            <page string="Notes" name="notes">
+                                <group>
+                                    <field name="keperluan" placeholder="Ketik" options="{'collaborative': true}"/>
+                                    <field name="doc_note" placeholder="Ketik" options="{'collaborative': true}"/>
+                                </group>
+                            </page>
+                        </notebook>
+                    </sheet>
+                    <div class="oe_chatter">
+                        <field name="message_follower_ids" groups="base.group_user"/>
+                        <field name="activity_ids"/>
+                        <field name="message_ids"/>
+                    </div>
+                </form>
+            </field>
+        </record>
+        <record id="view_patient_queue_form" model="ir.ui.view">
+            <field name="name">patient.queue.form</field>
+            <field name="model">hospital.patient.queue</field>
+            <field name="arch" type="xml">
+                <form string="Form Antrian Pasien">
+                    <header>
+                        <button name="state_btn_payment" class="oe_highlight" string="Pembayaran" type="object" states="done" data-hotkey="t" confirm="Apakah yakin ingin melajutkan ke pembayaran?"/>
+                        <field name="state" widget="statusbar" nolabel="1"/>      
+                    </header>
+                    <sheet>
+                        <group>
+                            <field name="medical_record_number"/>
+                            <field name="patient_id"/>
+                            <field name="doctor_id"/>
+                            <field name="pricelist_id"/>
+                        </group>
+                        <notebook>
+                            <page string="Treatment Details" name="treatment_details">
+                                <field name="treatment_ids" colspan="4" nolabel="1" context="{'default_appointment_id': active_id}">
+                                    <tree editable="bottom">
+                                        <field name="product_id" string="Treatment"/>
+                                        <field name="perawat_id" string="Perawat"/>
+                                        <field name="room_id" string="Ruangan"/>
+                                        <field name="available_bed_ids" invisible="1"/>
+                                        <field name="bed_ids" string="Kamar" widget="many2many_tags"/>
+                                        <field name="duration" string="Duration (Jam)" widget="float_time"/>
+                                        <field name="price" string="Price"/>
+                                        <field name="real_duration" string="Real Duration" readonly="1" widget="real_duration_widget"/>
+                                        <field name="status" string="Status" decoration-info="status=='draft'" decoration-primary="status=='in_progress'" decoration-success="status=='done'"  decoration-danger="status=='cancelled'" widget="badge" />
+                                        <button name="action_start_treatment" type="object" string="Start" class="btn-success oe_highlight"
+                                            attrs="{'invisible': [('status', '!=', 'draft')]}" />
+                                        <button name="action_pause_treatment" string="Pause" type="object" class="btn-warning oe_highlight"
+                                            attrs="{'invisible': [('status', '!=', 'in_progress')]}"/>
+                                        <button name="action_stop_treatment" type="object" string="Stop" class="btn-danger oe_highlight"
+                                            attrs="{'invisible': [('status', '!=', 'in_progress')]}" />
+                                    </tree>
+                                </field>
+                                <group name="note_group" col="6" class="mt-2 mt-md-0">
+                                    <group colspan="4">
+                                        <field colspan="2" name="note" nolabel="1" placeholder="Terms and conditions..." field_id="note_0"/>
+                                    </group>
+                                    <div class="clearfix"/>
+                                </group>
+                            </page>
+                            <page string="Pharmacy Details" name="pharmacy_details">
+                                <field name="pharmacy_ids" colspan="4" nolabel="1" context="{'default_appointment_id': active_id}">
+                                    <tree editable="bottom">
+                                        <field name="product_id" string="Product"/>
+                                        <field name="quantity" string="Quantity"/>
+                                        <field name="discount_nominal" string="Discount (Rp)"/>
+                                        <field name="discount_percentage" string="Discount (%)"/>
+                                        <field name="price" string="Price"/>
+                                        <field name="total_price" string="Total Price"/>
+                                    </tree>
+                                </field>
+                                
+                            </page>
+                        </notebook>
+                    </sheet>
+                    <div class="oe_chatter">
+                        <field name="message_follower_ids" groups="base.group_user"/>
+                        <field name="activity_ids"/>
+                        <field name="message_ids"/>
+                    </div>
+                </form>
+            </field>
+        </record>
+
+    <!-- Calendar view -->
+        <!-- <record id="view_hospital_appointment_calendar" model="ir.ui.view">
+            <field name="name">hospital.appointment.calendar</field>
+            <field name="model">hospital.appointment</field>
+            <field name="arch" type="xml">
+                <calendar string="Appointments" date_start="arrival_time" date_stop="end_time" color="state">
+                    <field name="doctor_id" filters="1" avatar_field="patient_image"/>   
+                    <field name="patient_id" filters="1" avatar_field="patient_image"/>   
+                    <field name="state" invisible="1" filters="1"/>     
+                </calendar>
+            </field>
+        </record> -->
+
+    <!-- Tree View -->
+        <record id="view_hospital_appointment_tree" model="ir.ui.view">
+            <field name="name">hospital.appointment.tree</field>
+            <field name="model">hospital.appointment</field>
+            <field name="arch" type="xml">
+                <tree string="hospital_appointment_tree" multi_edit="1" decoration-info="state=='draft'" decoration-primary="state=='in_consultation'" decoration-warning="state=='pra_consultation'" decoration-success="state=='done'"  decoration-danger="state=='cancel'" sample="1" >
+                    <field name="medical_record_number" readonly="1" string="ref"/>
+                    <field name="appointment_date" optional="show"/> 
+                    <field name="patient_id" decoration-bf="1" decoration-it="1" optional="show"/>
+                    <field name="appointment_type" optional="hide"/>
+                    <field name="gender" optional="hide" decoration-info="gender=='Male'" decoration-primary="gender=='Female'"/>
+                    <field name="doctor_id" widget="many2one_avatar" optional="show"/>
+                    <field name="activity_ids" widget="list_activity" optional="show" modifiers="{}"/>
+                    <field name="receptionist_id" widget="many2one_avatar" optional="hide"/>
+                    <field name="state" decoration-info="state=='draft'" decoration-primary="state=='in_consultation'" decoration-warning="state=='pra_consultation'" decoration-success="state=='done'"  decoration-danger="state=='cancel'" widget="badge" optional="hide"/>
+                    <field name="progress" widget="progressbar" optional="show"/>
+                    <field name="is_cash" optional="hide"/>
+                </tree>
+            </field>
+        </record>
+
+        <record id="view_hospital_appointment_tree_doctor" model="ir.ui.view">
+            <field name="name">hospital.appointment.tree.doctor</field>
+            <field name="model">hospital.appointment</field>
+            <field name="arch" type="xml">
+                <tree string="hospital_appointment_tree" multi_edit="1" decoration-info="state=='draft'" decoration-primary="state=='in_consultation'" decoration-warning="state=='pra_consultation'" decoration-success="state=='done'"  decoration-danger="state=='cancel'" sample="1" >
+                    <field name="medical_record_number" readonly="1" string="ref"/>
+                    <field name="appointment_date" optional="show"/> 
+                    <field name="patient_id" decoration-bf="1" decoration-it="1" optional="show"/>
+                    <field name="gender" optional="hide" decoration-info="gender=='Male'" decoration-primary="gender=='Female'"/>
+                    <field name="doctor_id" widget="many2one_avatar" optional="show"/>
+                    <field name="state" decoration-info="state=='draft'" decoration-primary="state=='in_consultation'" decoration-warning="state=='pra_consultation'" decoration-success="state=='done'"  decoration-danger="state=='cancel'" widget="badge" optional="hide"/>
+                </tree>
+            </field>
+        </record>
+        <record id="view_patient_queue_tree" model="ir.ui.view">
+            <field name="name">patient.queue.tree</field>
+            <field name="model">hospital.patient.queue</field>
+            <field name="arch" type="xml">
+                <tree string="Antrian Pasien" multi_edit="1" sample="1">
+                    <field name="medical_record_number"/>
+                    <field name="patient_id"/>
+                    <field name="doctor_id"/>
+                    <field name="room_1"/>
+                    <field name="room_2"/>
+                    <field name="room_3"/>
+                    <field name="more_rooms" string="More Rooms"/>
+                    <field name="state" decoration-info="state=='waiting'" decoration-primary="state=='in_consultation'" decoration-success="state=='done'" widget="badge"/>
+                </tree>
+            </field>
+        </record>
+        <record id="view_hospital_appointment_pivot" model="ir.ui.view">
+            <field name="name">hospital.appointment.pivot</field>
+            <field name="model">hospital.appointment</field>
+            <field name="arch" type="xml">
+                <pivot string="Hospital Appointments">
+                    <field name="doctor_id" type="row"/>
+                    <field name="patient_id" type="row"/>
+                    <field name="appointment_date" type="col" interval="day"/>
+                </pivot>
+            </field>
+        </record>
+
+    <!-- Activity View -->
+        <record id="view_hospital_appointment_activity" model="ir.ui.view">
+            <field name="name">hospital.appointment.activity</field>
+            <field name="model">hospital.appointment</field>
+            <field name="arch" type="xml">
+                <activity string="hospital_appointment_activity">
+                    <templates>
+                        <div t-name="activity-box">
+                            <img t-att-src="activity_image('hospital.patient', 'image', record.patient_id.raw_value)" t-att-title="record.patient_id.value" t-att-alt="record.patient_id.value"/>
+                            <div>
+                                <field name="patient_id" display="full"/>
+                            </div>
+                        </div>
+                    </templates>
+                </activity>
+            </field>
+        </record>
+<!-- =================================================================================SEARCH VIEW============================================================= -->
+    <!-- Search View -->
+        <record id="view_hospital_appointment_search" model="ir.ui.view">
+            <field name="name">hospital.appointment.search</field>
+            <field name="model">hospital.appointment</field>
+            <field name="arch" type="xml">
+                <search string="hospital_appointment_search">
+                    <field name="patient_id" string="Patient"/>
+                    <field name="doctor_id" string="Doctor"/>
+                    <field name="state" string="Status"/>
+                    <field name="is_cash" string="Pembayaran"/> 
+                    <field name="created_on" string="Created"/>
+                    <field name="appointment_date" string="Appointment Date" filter_domain="[('appointment_date', '>=', self)]"/>
+                    <filter name="filter_draft" string="Draft" domain="[('state', '=', 'draft')]"/>
+                    <filter name="filter_in_consultation" string="In Consultation" domain="[('state', '=', 'in_consultation')]"/>
+                    <filter name="filter_done" string="Done" domain="[('state', '=', 'done')]"/>
+                    <filter name="filter_cancel" string="Cancelled" domain="[('state', '=', 'cancel')]"/>
+                    <filter name="today" string="Today" domain="[('created_on', '=', current_date)]"/>
+                    <filter name="is_cash_true" string="Pembayaran" domain="[('is_cash', '=', False)]" />
+                </search>
+            </field>
+        </record>
+
+        <record id="view_hospital_patient_queue_search" model="ir.ui.view">
+            <field name="name">hospital.patient.queue.search</field>
+            <field name="model">hospital.patient.queue</field>
+            <field name="arch" type="xml">
+                <search string="hospital.patient.queue_search">
+                    <field name="patient_id" string="Patient"/>
+                    <field name="doctor_id" string="Doctor"/>
+                    <field name="state" string="Status"/>
+                    <field name="created_on" string="Created"/>
+                    <field name="medical_record_number" string="NO REG"/>   
+                    <filter name="today" string="Today" domain="[('created_on', '=', current_date)]"/>  
+                </search>
+            </field>
+        </record>
+
+        <!-- Kanban View -->
+        <record id="view_hospital_appointment_kanban" model="ir.ui.view">
+            <field name="name">hospital.appointment.kanban</field>
+            <field name="model">hospital.appointment</field>
+            <field name="arch" type="xml">
+                <kanban string="Appointments" sample="1">
+                    <field name="patient_id"/>
+                    <field name="appointment_date"/>
+                    <field name="state"/>
+                    <templates>
+                        <t t-name="kanban-box">
+                            <div class="oe_kanban_global_click o_kanban_card" t-att-data-id="record.id" >
+                                <div class="oe_kanban_details">
+                                    <!-- Header Section with Doctor and Nurse Information -->
+                                    <div class="kanban-header" style="background-color: #4CAF50; color: white; padding: 5px; border-radius: 5px;">
+                                        <span><strong>Dokter:</strong> <field name="doctor_id"/></span>
+                                    </div>
+
+                                    <!-- Patient and Appointment Date -->
+                                    <div class="kanban-content" style="margin-top: 10px; padding: 5px;">
+                                        <div>
+                                            <span><strong>Pasien:</strong> <field name="patient_id"/></span>
+                                        </div>
+                                        <div>
+                                            <span><strong>Tanggal Treatment:</strong> <field name="appointment_date"/></span>
+                                        </div>
+                                    </div>
+                                    <!-- Status Section with Color Coding -->
+                                    <div class="kanban-status" style="margin-top: 10px; padding: 5px;">
+                                        <div>
+                                            <span><strong>Status:</strong></span>
+                                            <t t-if="record.state.raw_value == 'done'">
+                                                <span style="color: green; font-weight: bold;">Done</span>
+                                            </t>
+                                            <t t-if="record.state.raw_value == 'draft'">
+                                                <span style="color: blue; font-weight: bold;">Draft</span>
+                                            </t>
+                                            <t t-if="record.state.raw_value != 'done' and record.state.raw_value != 'draft'">
+                                                <span><field name="state"/></span>
+                                            </t>
+                                        </div>
+                                        <div>
+                                            <span><strong>Catatan:</strong> <field name="notes"/></span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </t>
+                    </templates>
+                </kanban>
+            </field>
+        </record>
+    <!-- =============================================================================================ACTION======================================================================= -->
+        <!-- Action graph -->
+        <record id="view_hospital_appointment_graph" model="ir.ui.view">
+            <field name="name">hospital.appointment.graph</field>
+            <field name="model">hospital.appointment</field>
+            <field name="arch" type="xml">
+                <graph string="Hospital Appointments" type="pie">
+                    <field name="doctor_id" />
+                    <field name="id" sum="count" type="measure"/>
+                </graph>
+            </field>
+        </record>
+
+        <!-- Main Action -->
+        <record id="action_hospital_appointment" model="ir.actions.act_window">
+            <field name="name">Registrasi</field>
+            <field name="type">ir.actions.act_window</field>
+            <field name="res_model">hospital.appointment</field>
+            <field name="view_mode">tree,form,activity,graph</field> 
+            <field name="domain">[('state', '=', 'draft')]</field>
+            <field name="context">{'search_default_today': 1}</field>
+            <field name="help" type="html">
+                <p class="o_view_nocontent_smiling_face">
+                    Buat Janji Sekarang
+                </p>
+            </field>
+        </record>
+
+        <!-- Action untuk Status Consulting -->
+        <record id="action_hospital_appointment_consulting" model="ir.actions.act_window">
+            <field name="name">Konsultasi - Dokter</field>
+            <field name="type">ir.actions.act_window</field>
+            <field name="res_model">hospital.appointment</field>
+            <field name="view_mode">tree,form,activity,graph</field> 
+            <field name="domain">[('state', '=', 'in_consultation')]</field>
+            <field name="context">{'create': False}</field>
+            <field name="view_id" ref="view_hospital_appointment_tree_doctor"/>
+        </record>
+
+        <!-- Action untuk Status Preconsulting -->
+        <!-- <record id="action_hospital_appointment_preconsulting" model="ir.actions.act_window">
+            <field name="name">Treatment - Terapis</field>
+            <field name="type">ir.actions.act_window</field>
+            <field name="res_model">hospital.appointment</field>
+            <field name="view_mode">tree,form,activity,graph</field> 
+            <field name="domain">[('state', '=', 'pra_consultation')]</field> -->
+            <!-- <field name="domain">[('state', '=', 'pra_consultation'),('doctor_id.user_id', '=', uid)]]</field> -->
+            <!-- <field name="context">{'create': False}</field> -->
+        <!-- </record> -->
+
+        <!-- Action untuk Status Done -->
+        <record id="action_hospital_appointment_done" model="ir.actions.act_window">
+            <field name="name">Done</field>
+            <field name="type">ir.actions.act_window</field>
+            <field name="res_model">hospital.appointment</field>
+            <field name="view_mode">tree,form,activity,graph</field> 
+            <field name="domain">[('state', '=', 'done')]</field> 
+            <field name="context">{'search_default_is_cash_true': 1, 'create': False}</field> 
+        </record>
+
+        <!-- Main Action untuk Kalender -->
+        <!-- <record id="action_hospital_appointment_calendar" model="ir.actions.act_window">
+            <field name="name">Kalender Janji</field>
+            <field name="type">ir.actions.act_window</field>
+            <field name="res_model">hospital.appointment</field>
+            <field name="view_mode">calendar</field>
+            <field name="context">{}</field>
+            <field name="help" type="html">
+                <p class="o_view_nocontent_smiling_face">
+                    Lihat Janji di Kalender
+                </p>
+            </field>
+        </record> -->
+
+        <!-- Action for Kanban View -->
+        <record id="action_hospital_appointment_report" model="ir.actions.act_window">
+            <field name="name">Report</field>
+            <field name="type">ir.actions.act_window</field>
+            <field name="res_model">hospital.appointment</field>
+            <field name="view_mode">pivot</field>
+            <field name="domain">[('state', '=', 'done')]</field>
+        </record>
+        
+        <record id="action_patient_queue" model="ir.actions.act_window">
+            <field name="name">Antrian Treatment</field>
+            <field name="res_model">hospital.patient.queue</field>
+            <field name="view_mode">tree,form</field>
+            <field name="context">{"create": False, 'search_default_today':1}</field>
+            <!-- <field name="view_id" ref="view_patient_queue_tree"/> -->
+        </record>
+        
+    <!-- =======================================================================Menu======================================================= -->
+        <menuitem id="hospital_appointment_menu"
+            name="Registrasi"
+            parent="hospital_appointment_root_menu"
+            action="action_hospital_appointment"
+            sequence="2"/>
+        <menuitem id="hospital_appointment_doctor_done" name="Antrian Dokter" sequence= "3" parent="hospital_appointment_root_menu">
+            <menuitem id="hospital_appointment_menu_consulting" name="Antrian Dokter" action="action_hospital_appointment_consulting" sequence="10"/>
+            <menuitem id="hospital_appointment_menu_done" name="Antrian Selesai" action="action_hospital_appointment_done" sequence="20"/>
+        </menuitem>
+        <menuitem id="hospital_treatment_menu_done"
+            name="Antrian Treatment"
+            parent="hospital_appointment_root_menu"
+            action="action_patient_queue"
+            sequence="4"/>
+        <!-- <menuitem id="hospital_appointment_calendar_menu"
+            name="Jadwal Janji"
+            parent="hospital_doctor_root_menu"
+            action="action_hospital_appointment_calendar"
+            sequence="2"/> -->
+        <menuitem id="hospital_appointment_menu_report"
+            name="Report"
+            parent="hospital_appointment_root_menu"
+            action="action_hospital_appointment_report"
+            sequence="6"/>
+    </data>
+</odoo>

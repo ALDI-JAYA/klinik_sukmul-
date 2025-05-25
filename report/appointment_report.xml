@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <report
+        id="report_appointment_card"
+        string="Hospital Appointment Report"
+        model="hospital.cash.register"
+        report_type="qweb-pdf"
+        menu="False"
+        name="klinik_sukmul.report_appointment_id_card"
+        file="klinik_sukmul.report_appointment_id_card"
+        print_report_name="'Appointment Report - %s' % (object.patient_id.name)"
+    />
+</odoo>

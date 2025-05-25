@@ -1,0 +1,50 @@
+<?xml version="1.0"?>
+<odoo>
+    <record id="act_book_reservasi" model="ir.actions.act_window">
+        <field name="name">Buku Reservasi</field>
+        <field name="res_model">hospital.reservation</field>
+        <field name="view_mode">calendar</field>
+        <!-- <field name="view_id" ref="klinik_sukmul.view_hospital_appointment_calendar"/> -->
+    </record>
+
+    <!-- <record id="act_book_appointment" model="ir.actions.act_window">
+        <field name="name">Buku Janji Temu</field>
+        <field name="res_model">hospital.appointment</field>
+        <field name="view_mode">calendar</field>
+        <field name="view_id" ref="klinik_sukmul.view_hospital_appointment_calendar"/>
+    </record> -->
+    <record id="act_doctor_schedule" model="ir.actions.act_window">
+        <field name="name">Doctor Schedule</field>
+        <field name="res_model">doctor.schedule</field>
+        <field name="view_mode">kanban,tree</field>
+        <!-- <field name="view_id" ref="klinik_sukmul.view_doctor_schedule_calendar"/> -->
+    </record>
+
+    <record id="dashboard_form_view" model="ir.ui.view">
+        <field name="name">Dashboard Form</field>
+        <field name="model">board.board</field>
+        <field name="type">form</field>
+        <field name="arch" type="xml">
+            <form string="Dashboard">
+                <board style="auto">
+                    <column class="o_column">
+                        <action
+                            string="Buku Reservasi"
+                            name="%(act_book_reservasi)d"
+                            class="o_action_button o_reservation_calendar"/>
+                        <action
+                            string="Doctor Schedule"
+                            name="%(act_doctor_schedule)d"
+                            class="o_action_button o_doctor_schedule"/>
+                    </column>
+                </board>
+            </form>
+        </field>
+    </record>
+    <record id="hospital_dashboard" model="ir.actions.act_window">
+        <field name="name">Dashboard</field>
+        <field name="res_model">board.board</field>
+        <field name="view_mode">form</field>
+        <field name="view_id" ref="dashboard_form_view"/>
+    </record>  
+</odoo>

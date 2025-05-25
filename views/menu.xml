@@ -1,0 +1,96 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    
+    <menuitem id="hospital_root_menu"
+        name="Venice Beauty Clinic System"
+        web_icon="klinik_sukmul,static/description/laser.png"
+        sequence="0"
+        action=""/>
+       
+    <menuitem id="hospital_dashboard_menu"
+        name="Dashboard"
+        web_icon="klinik_sukmul,static/description/master.png"
+        sequence="1"
+        action="klinik_sukmul.hospital_dashboard"/>
+
+    <menuitem id="hospital_appointment_root_menu"
+        name="Administrasi"
+        web_icon="klinik_sukmul,static/description/appointment.png"
+        sequence="3"
+        action=""/>
+
+    <menuitem id="hospital_pharmacy_root_menu"
+        name="Master Klinik"
+        web_icon="klinik_sukmul,static/description/hospital.png"
+        sequence="2"
+        action=""/>
+
+    <menuitem id="hospital_patient_root_menu"
+        name="Pasien"
+        web_icon="klinik_sukmul,static/description/patient.png"
+        sequence="4"
+        action=""/>
+
+    <menuitem id="hospital_doctor_root_menu"
+        name="Menu Dokter"
+        web_icon="klinik_sukmul,static/description/doctor.png"
+        sequence="5"
+        action=""/>
+ 
+    <menuitem id="hospital_employee_root_menu"
+        name="Terapis"
+        sequence="6"
+        web_icon="klinik_sukmul,static/description/terapis.png"
+        action=""/>
+
+    <menuitem id="hospital_kecantikan_root_menu"
+        name="Farmasi"
+        web_icon="klinik_sukmul,static/description/warehouse.png"
+        sequence="7"
+        action=""/>
+    
+    <menuitem id="hospital_kasir_root_menu"
+        name="Kasir"
+        web_icon="klinik_sukmul,static/description/kasir.png"
+        sequence="8"
+        action=""/>
+</odoo>
+
+<!-- <?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <menuitem id="hospital_root_menu"
+        name="Klinik Kecantikan"
+        web_icon="klinik_sukmul,static/description/iconSM.png"
+        sequence="0"
+        action=""/>
+    <menuitem id="hospital_dashboard_menu"
+        name="Dashboard"
+        sequence="1"
+        parent="hospital_root_menu"
+        action="klinik_sukmul.hospital_dashboard"/>
+    <menuitem id="hospital_patient_root_menu"
+        name="Pasien"
+        sequence="2"
+        parent="hospital_root_menu"
+        action=""/>
+    <menuitem id="hospital_doctor_root_menu"
+        name="Dokter"
+        sequence="3"
+        parent="hospital_root_menu"
+        action=""/>
+    <menuitem id="hospital_appointment_root_menu"
+        name="Appointment"
+        sequence="4"
+        parent="hospital_root_menu"
+        action=""/>
+    <menuitem id="hospital_employee_root_menu"
+        name="Terapis"
+        sequence="5"
+        parent="hospital_root_menu"
+        action=""/>
+    <menuitem id="hospital_pharmacy_root_menu"
+        name="Konfigurasi"
+        sequence="6"
+        parent="hospital_root_menu"
+        action=""/>
+</odoo> -->

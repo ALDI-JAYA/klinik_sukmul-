@@ -1,0 +1,82 @@
+<odoo>
+    <template id="pharmacy_template" name="Pharmacy List">
+        <t t-call="website.layout">
+            <div class="container">
+                <h1>Hospital Pharmacy</h1>
+                <style>
+                    .container {
+                        width: 80%;
+                        margin: 0 auto;
+                        padding-top: 30px;
+                    }
+
+                    h1 {
+                        text-align: center;
+                        font-size: 36px;
+                        color: #333;
+                    }
+
+                    .pharmacy-item {
+                        display: inline-block;
+                        width: 220px;
+                        padding: 15px;
+                        margin: 15px;
+                        border: 1px solid #ddd;
+                        border-radius: 8px;
+                        text-align: center;
+                        background-color: #f9f9f9;
+                        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+                        transition: transform 0.3s ease, box-shadow 0.3s ease;
+                    }
+
+                    .pharmacy-item:hover {
+                        transform: translateY(-5px);
+                        box-shadow: 0 6px 15px rgba(0, 0, 0, 0.1);
+                    }
+
+                    .pharmacy-item img {
+                        width: 150px;
+                        height: auto;
+                        border-radius: 4px;
+                        margin-bottom: 10px;
+                    }
+
+                    .pharmacy-item h3 {
+                        font-size: 18px;
+                        font-weight: bold;
+                        color: #333;
+                        margin-bottom: 10px;
+                    }
+
+                    .pharmacy-item p {
+                        font-size: 14px;
+                        color: #666;
+                        margin: 5px 0;
+                    }
+
+                    .pharmacy-item a {
+                        color: #2196F3;
+                        text-decoration: none;
+                    }
+
+                    .pharmacy-item a:hover {
+                        text-decoration: underline;
+                    }
+                </style>
+                <t t-foreach="medicines" t-as="medicine">
+                    <div class="pharmacy-item">
+                        <h3>
+                            <a t-att-href="'/hospital/pharmacy/' + str(medicine.id)">
+                                <t t-esc="medicine.name"/>
+                            </a>
+                        </h3>
+                        <p><t t-esc="medicine.batch_no"/></p>
+                        <p>Price: <t t-esc="medicine.unit_price"/> Rupiah</p>
+                        <p>Stock: <t t-esc="medicine.stock"/></p>
+                        <img t-if="medicine.produk_image" t-att-src="medicine.produk_image" alt="Product Image" width="150"/>
+                    </div>
+                </t>
+            </div>
+        </t>
+    </template>
+</odoo>

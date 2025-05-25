@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record model="ir.module.category" id="module_category_clinic">
+        <field name="name">Manajemen Klinik</field>
+        <field name="description">Kategori Klinik</field>
+    </record>
+    <record id="group_doctor" model="res.groups">
+        <field name="name">Doctor</field>
+        <field name="category_id" ref="module_category_clinic"/>
+    </record>
+    <record id="group_receptionist" model="res.groups">
+        <field name="name">Receptionist</field>
+        <field name="category_id" ref="module_category_clinic"/>
+    </record>
+    <record id="group_cs" model="res.groups">
+        <field name="name">CS</field>
+        <field name="category_id" ref="module_category_clinic"/>
+    </record>
+    <record id="group_follow_up" model="res.groups">
+        <field name="name">Terapis</field>
+        <field name="category_id" ref="module_category_clinic"/>
+    </record>
+</odoo>

@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <data>
+        <!-- Template untuk Widget Real Duration -->
+        <template id="RealDurationWidget" name="Real Duration widget">
+            <t t-name="RealDurationWidget">
+                <span class="oe_real_duration_widget">0.00 minutes</span>
+            </t>
+        </template>
+    </data>
+</odoo>

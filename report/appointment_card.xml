@@ -1,0 +1,115 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <template id="report_appointment_id_card">
+        <main>
+            <t t-foreach="docs" t-as="doc">
+                <div class="page">
+                    <p style="text-align: center; margin-bottom: 1px;">Venice Aesthetic Clinic<br/>
+                        Disuka Karena Beda
+                        <br/>Jl. D.I Panjaitan No. 12 Semarang<br/>
+                        Telp. 081 232 10 10 10
+                    </p>
+                    <hr style="border-width: 1px; border-color: #000000;"/>
+                    <p style="text-align: center"> Proforma Invoice <br/></p>
+                    <hr style="border-width: 1px; width: 25%; border-color: #000000;"/>
+                    <div style="margin-bottom: 30px; font-size: 16px;">
+                        <p><strong>Tanggal:</strong> <t t-esc="doc.appointment_date" style="font-weight: 600;"/></p>
+                        <p><strong>No. Nota:</strong> <t t-esc="doc.ref" style="font-weight: 600;"/></p>
+                        <p><strong>No. Reg:</strong> <t t-esc="doc.medical_record_number" style="font-weight: 600;"/></p>
+                        <p><strong>Pasien:</strong> <t t-esc="doc.patient_id.name" style="font-weight: 600;"/></p>
+                        <p><strong>Beautici:</strong> <t t-esc="doc.treatment_ids.perawat_id.name" style="font-weight: 600;"/></p>
+                        <p><strong>Dokter:</strong> <t t-esc="doc.doctor_id.name" style="font-weight: 600;"/></p>
+                        <p>
+                            <strong>Tipe:</strong>
+                            <t t-if="doc.patient_type_ids">
+                                <t t-foreach="doc.patient_type_ids" t-as="patient_type" t-join=", ">
+                                    <t t-esc="patient_type.name"/>
+                                </t>
+                            </t>
+                            <t t-else="-"/>
+                        </p>
+                    </div>
+                    <hr style="border-width: 1px; border-color: #000000;"/>
+                    <h4 style="font-size: 20px; font-weight: bold; text-align:center;">Detail Tagihan</h4>
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th style="padding: 10px;">No</th>
+                                <th style="padding: 10px;">Nama</th>
+                                <th style="padding: 10px;">Qty</th>
+                                <th style="padding: 10px;">Harga</th>
+                                <th style="padding: 10px;">Dsc</th>
+                                <th style="padding: 10px;">Sub Total</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <t t-set="counter" t-value="0"/>
+                            <t t-set="grand_total" t-value="0"/>
+                            <!-- Iterasi Produk Kecantikan -->
+                            <t t-foreach="doc.pharmacy_ids" t-as="line">
+                                <tr>
+                                    <td style="padding: 10px;">
+                                        <t t-set="counter" t-value="counter + 1"/>
+                                        <t t-esc="counter"/>
+                                    </td>
+                                    <td style="padding: 10px;">
+                                        <t t-esc="line.product_id.name" style="font-weight: 600;"/>
+                                    </td>
+                                    <td style="padding: 10px;">
+                                        <t t-esc="line.quantity"/>
+                                    </td>
+                                    <td style="padding: 10px;">
+                                        Rp. <t t-esc="line.price"/>
+                                    </td>
+                                    <td style="padding: 10px;">
+                                        <t t-esc="line.discount_nominal"/>
+                                    </td>
+                                    <td style="padding: 10px;">
+                                        Rp. <t t-esc="line.total_price"/>
+                                    </td>
+                                    <t t-set="grand_total" t-value="grand_total + line.total_price - line.discount_nominal"/>
+                                    <t t-set="total_discount" t-value="(total_discount or 0) + (line.discount_nominal or 0)"/>
+                                </tr>
+                            </t>
+                            <!-- Iterasi Produk Treatment -->
+                            <t t-foreach="doc.treatment_ids" t-as="treatment">
+                                <tr>
+                                    <td style="padding: 10px;">
+                                        <t t-set="counter" t-value="counter + 1"/>
+                                        <t t-esc="counter"/>
+                                    </td>
+                                    <td style="padding: 10px;">
+                                        <t t-esc="treatment.product_id.name" style="font-weight: 600;"/>
+                                    </td>
+                                    <!-- <td style="padding: 10px;">
+                                        <t t-esc="treatment.perawat_id.name" style="font-weight: 600;"/>
+                                    </td> -->
+                                    <td style="padding: 10px;">1</td>
+                                    <td style="padding: 10px;">
+                                        Rp. <t t-esc="treatment.price"/>
+                                    </td>
+                                    <td style="padding: 10px;">
+                                        <t t-esc="treatment.discount_nominal"/>
+                                    </td>
+                                    <td style="padding: 10px;">
+                                        Rp. <t t-esc="treatment.price"/>
+                                    </td>
+                                    <t t-set="grand_total" t-value="grand_total + treatment.price - treatment.discount_nominal"/>
+                                    <t t-set="total_discount" t-value="(total_discount or 0) + (treatment.discount_nominal or 0)"/>
+                                </tr>
+                            </t>
+                        </tbody>
+                    </table>
+                    <hr style="border-width: 1px; border-color: #000000;"/>
+                    <h3 style="text-align: right; font-size: 20px; font-weight: bold;">Grand Total</h3>
+                    <p style="text-align: right; font-size: 18px; font-weight: bold;">Total Diskon: Rp. <t t-esc="total_discount"/></p>
+                    <p style="text-align: right; font-size: 18px; font-weight: bold;">Total: Rp. <t t-esc="grand_total"/></p>
+
+                    <div style="margin-top: 30px; text-align: center; font-size: 14px;">
+                        <p>Terima kasih atas kunjungan anda<br/> Barang yang sudah dibeli tidak dapat dikembalikan!</p>
+                    </div>
+                </div>
+            </t>
+        </main>
+    </template>
+</odoo>
