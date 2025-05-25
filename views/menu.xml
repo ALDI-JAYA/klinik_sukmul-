@@ -2,7 +2,7 @@
 <odoo>
     
     <menuitem id="hospital_root_menu"
-        name="Venice Beauty Clinic System"
+        name="Clinic System"
         web_icon="klinik_sukmul,static/description/laser.png"
         sequence="0"
         action=""/>
